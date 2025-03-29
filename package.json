@@ -31,8 +31,10 @@
     "@toast-ui/editor-plugin-table-merged-cell": "^3.1.0",
     "@toast-ui/editor-plugin-uml": "^3.0.1",
     "@toast-ui/react-editor": "^3.2.3",
+    "axios": "^1.8.4",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "date-fns": "^4.1.0",
     "html2canvas": "^1.4.1",
     "lucide-react": "^0.473.0",
     "next": "15.1.5",
@@ -60,5 +62,6 @@
     "prettier": "^3.4.2",
     "tailwindcss": "^3.4.1",
     "typescript": "^5"
-  }
+  },
+  "packageManager": "pnpm@9.15.2+sha512.93e57b0126f0df74ce6bff29680394c0ba54ec47246b9cf321f0121d8d9bb03f750a705f24edc3c1180853afd7c2c3b94196d0a3d53d3e069d9e2793ef11f321"
 }

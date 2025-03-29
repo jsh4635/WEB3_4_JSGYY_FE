@@ -7,7 +7,7 @@ import { ThemeProvider as NextThemesProvider } from "next-themes";
 
 import Link from "next/link";
 
-import client from "@/lib/backend/client";
+// import client from "@/lib/backend/client";
 
 import NarrowHeaderContent from "@/lib/business/components/NarrowHeaderContent";
 import WideHeaderContent from "@/lib/business/components/WideHeaderContent";
@@ -49,13 +49,20 @@ export function ClientLayout({
 
   useEffect(() => {
     const fetchMember = () => {
-      client.GET("/api/v1/members/me").then((res) => {
-        if (res.error) {
-          setNoLoginMember();
-        } else {
-          setLoginMember(res.data);
-        }
+      setLoginMember({
+        id: 2,
+        createDate: "2025-03-28T00:00:00.000+09:00",
+        modifyDate: "2025-03-28T00:00:00.000+09:00",
+        nickname: "test",
+        profileImgUrl: "https://example.com/test.jpg",
       });
+      // client.GET("/api/v1/members/me").then((res) => {
+      //   if (res.error) {
+      //     setNoLoginMember();
+      //   } else {
+      //     setLoginMember(res.data);
+      //   }
+      // });
     };
 
     fetchMember();

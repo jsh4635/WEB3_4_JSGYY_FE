@@ -4,9 +4,10 @@ import KaKaoLoginButton from "@/lib/business/components/KaKaoLoginButton";
 import NaverLoginButton from "@/lib/business/components/NaverLoginButton";
 
 import { useGlobalLoginMember } from "@/stores/auth/loginMember";
+import MainPage from "./MainPage";
 
 export default function ClientPage() {
-  const { isLogin, loginMember } = useGlobalLoginMember();
+  const { isLogin } = useGlobalLoginMember();
 
   return (
     <div className="flex-1 flex justify-center items-center">
@@ -16,7 +17,7 @@ export default function ClientPage() {
           <NaverLoginButton text />
         </div>
       )}
-      {isLogin && <div>{loginMember.nickname}님 환영합니다.</div>}
+      {isLogin && <MainPage />}
     </div>
   );
 }
