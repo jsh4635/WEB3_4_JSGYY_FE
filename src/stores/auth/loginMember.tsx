@@ -33,6 +33,11 @@ export const LoginMemberContext = createContext<{
 });
 
 function createEmptyMember(): Member {
+  // client.get("/api/admin/members").then((res) => {
+  //   if (res.data?.data) {
+  //     console.log(res.data.data);
+  //   }
+  // });
   return {
     id: 0,
     createDate: "",
@@ -67,7 +72,7 @@ export function useLoginMember() {
   const isAdmin = loginMember.id === 2;
 
   const logout = (callback: () => void) => {
-    client.DELETE("/api/v1/members/logout").then(() => {
+    client.delete("/api/v1/members/logout").then(() => {
       removeLoginMember();
       callback();
     });
