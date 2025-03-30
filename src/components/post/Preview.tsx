@@ -1,4 +1,6 @@
-import { Product } from "@/types/product";
+"use client";
+
+import { Post } from "@/types/post";
 import { formatDate } from "@/utils/date";
 import { formatPrice } from "@/utils/price";
 
@@ -8,15 +10,15 @@ import Link from "next/link";
 import { Star } from "lucide-react";
 
 interface PreviewProps {
-  product: Product;
+  post: Post;
 }
 
-const Preview = ({ product }: PreviewProps) => {
+const Preview = ({ post }: PreviewProps) => {
   const { id, title, price, thumbnail, saleStatus, createdAt, likes, content } =
-    product;
+    post;
 
   return (
-    <Link href={`/product/${id}`}>
+    <Link href={`/post/${id}`}>
       <div className="w-full cursor-pointer rounded-lg border border-gray-200 p-4 hover:shadow-md transition-box-shadow duration-200">
         <div className="relative aspect-square w-full overflow-hidden rounded-lg">
           <Image

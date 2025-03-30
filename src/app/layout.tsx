@@ -8,6 +8,7 @@ import { Toaster } from "@/components/ui/toaster";
 
 import { ClientLayout } from "./ClientLayout";
 import "./globals.css";
+import Providers from "./providers";
 
 config.autoAddCss = false;
 
@@ -39,10 +40,12 @@ export default function RootLayout({
           className="flex flex-col min-h-[100dvh] bg-background"
           vaul-drawer-wrapper="true"
         >
-          <ClientLayout>
-            {children}
-            <Toaster />
-          </ClientLayout>
+          <Providers>
+            <ClientLayout>
+              {children}
+              <Toaster />
+            </ClientLayout>
+          </Providers>
         </div>
       </body>
     </html>

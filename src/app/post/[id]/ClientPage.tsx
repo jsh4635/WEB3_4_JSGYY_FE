@@ -1,7 +1,7 @@
 "use client";
 
 import { mockUser } from "@/mocks/user";
-import { ProductDetail } from "@/types/product";
+import { PostDetail } from "@/types/post";
 import { use } from "react";
 
 import Image from "next/image";
@@ -15,7 +15,7 @@ import { Button } from "@/components/ui/button";
 
 import { Bell, Clock, Heart, MapPin } from "lucide-react";
 
-export default function ClientPage({ post }: { post: ProductDetail }) {
+export default function ClientPage({ post }: { post: PostDetail }) {
   const { isAdmin } = use(LoginMemberContext);
 
   return (

@@ -2,12 +2,13 @@ export interface Post {
   id: number;
   title: string;
   price: number;
-  saleStatus: string;
+  saleStatus: boolean;
   createdAt: string;
   modifiedAt: string;
-  images: string[];
+  thumbnail: string;
   content: string;
-  userId: number;
+  authorId: number;
+  likes: number;
 }
 
 export interface PostDetail {
