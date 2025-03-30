@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 
 import { useGlobalLoginMember } from "@/stores/auth/loginMember";
@@ -12,6 +11,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { FallbackImage } from "@/components/ui/image";
 
 import { LogOut, MonitorCog, User } from "lucide-react";
 
@@ -22,13 +22,14 @@ export default function MeMenuButton() {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="link">
-          <Image
-            className="w-[32px] h-[32px] object-cover rounded-full w-[32px] h-[32px] object-cover"
+          <FallbackImage
+            className="w-[32px] h-[32px] object-cover rounded-full "
             src={loginMember.profileImgUrl}
             alt={loginMember.nickname}
             width={32}
             height={32}
             quality={100}
+            fallbackSrc="/user.svg"
           />
         </Button>
       </DropdownMenuTrigger>

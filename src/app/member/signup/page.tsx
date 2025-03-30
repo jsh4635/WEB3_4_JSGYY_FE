@@ -8,6 +8,7 @@ import * as z from "zod";
 import { useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Form,
   FormControl,
@@ -96,6 +97,7 @@ export default function SignupPage() {
       });
 
       router.push("/member/login");
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (_) {
       toast({
         title: "회원가입 실패",
@@ -115,83 +117,76 @@ export default function SignupPage() {
       control={form.control}
       name={name}
       render={({ field }) => (
-        <FormItem className="relative">
-          <FormLabel className="absolute -top-2 left-3 z-10 bg-white px-1 text-xs text-gray-500">
-            {label}
-          </FormLabel>
+        <FormItem>
+          <FormLabel className="select-none">{label}</FormLabel>
           <FormControl>
             <div className="relative select-none">
               <Input
                 type={showToggle ? (showToggle[0] ? "text" : "password") : type}
-                placeholder={label}
-                className="w-full rounded-xl border border-gray-300 px-4 pb-5 pt-6 text-base focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder={`${label}를 입력하세요`}
+                className="pr-10"
                 {...field}
               />
               {showToggle &&
                 (showToggle[0] ? (
                   <EyeOff
-                    className="absolute right-3 top-3 h-5 w-5 text-gray-400 cursor-pointer hover:text-gray-600"
+                    className="absolute right-2 top-2.5 h-5 w-5 text-gray-400 cursor-pointer"
                     onClick={showToggle[1]}
                   />
                 ) : (
                   <Eye
-                    className="absolute right-3 top-3 h-5 w-5 text-gray-400 cursor-pointer hover:text-gray-600"
+                    className="absolute right-2 top-2.5 h-5 w-5 text-gray-400 cursor-pointer"
                     onClick={showToggle[1]}
                   />
                 ))}
             </div>
           </FormControl>
-          <FormMessage className="text-xs text-red-500 px-1" />
+          <FormMessage />
         </FormItem>
       )}
     />
   );
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4">
-      <div className="w-full max-w-md space-y-8 rounded-lg bg-white p-8 shadow-lg">
-        <div className="text-center select-none">
-          <h1 className="text-2xl font-bold tracking-tight text-gray-900">
-            Sign up
-          </h1>
-          <p className="mt-2 text-sm text-gray-600">
-            Sign up to enjoy the feature of Revolutie
-          </p>
-        </div>
+    <div className="flex items-center justify-center py-10 bg-white">
+      <Card className="w-full max-w-md mx-4">
+        <CardHeader className="text-center">
+          <CardTitle className="text-3xl font-bold text-gray-800 select-none">
+            Bid & Buy
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+              <div className="space-y-4">
+                {renderFloatingField("id", "아이디")}
+                {renderFloatingField("password", "비밀번호", "password", [
+                  showPassword,
+                  () => setShowPassword(!showPassword),
+                ])}
+                {renderFloatingField(
+                  "confirmPassword",
+                  "비밀번호 확인",
+                  "password",
+                  [showConfirm, () => setShowConfirm(!showConfirm)],
+                )}
+                {renderFloatingField("email", "이메일")}
+                {renderFloatingField("location", "지역")}
+                {renderFloatingField("phoneNumber", "전화번호")}
+                {renderFloatingField("nickname", "닉네임")}
+                {renderFloatingField("name", "이름")}
+              </div>
 
-        <Form {...form}>
-          <form
-            onSubmit={form.handleSubmit(onSubmit)}
-            className="mt-8 space-y-6"
-          >
-            <div className="space-y-6">
-              {renderFloatingField("id", "Your id")}
-              {renderFloatingField("password", "Password", "password", [
-                showPassword,
-                () => setShowPassword(!showPassword),
-              ])}
-              {renderFloatingField(
-                "confirmPassword",
-                "Confirm Password",
-                "password",
-                [showConfirm, () => setShowConfirm(!showConfirm)],
-              )}
-              {renderFloatingField("email", "Email")}
-              {renderFloatingField("location", "Location")}
-              {renderFloatingField("phoneNumber", "Phone Number")}
-              {renderFloatingField("nickname", "Nickname")}
-              {renderFloatingField("name", "Name")}
-            </div>
-
-            <Button
-              type="submit"
-              className="w-full rounded-md bg-blue-600 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
-            >
-              Sign up
-            </Button>
-          </form>
-        </Form>
-      </div>
+              <Button
+                type="submit"
+                className="w-full bg-black text-white rounded-full select-none"
+              >
+                회원가입
+              </Button>
+            </form>
+          </Form>
+        </CardContent>
+      </Card>
     </div>
   );
 }

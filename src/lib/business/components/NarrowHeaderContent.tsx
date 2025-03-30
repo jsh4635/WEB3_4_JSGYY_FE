@@ -21,7 +21,6 @@ import {
   Menu,
   MonitorCog,
   NotebookTabs,
-  TableOfContents,
   User,
   UserRoundSearch,
 } from "lucide-react";
@@ -30,7 +29,6 @@ import LoginPageButton from "./LoginPageButton";
 import Logo from "./Logo";
 import MeMenuButton from "./MeMenuButton";
 import PostWriteButton from "./PostWriteButton";
-import ThemeToggleButton from "./ThemeToggleButton";
 
 export default function NarrowHeaderContent({
   className,
@@ -63,19 +61,6 @@ export default function NarrowHeaderContent({
             <ul>
               {isUserPage && (
                 <>
-                  <li>
-                    <DrawerClose asChild>
-                      <Button
-                        variant="link"
-                        className="w-full justify-start"
-                        asChild
-                      >
-                        <Link href="/post/list">
-                          <TableOfContents /> 글
-                        </Link>
-                      </Button>
-                    </DrawerClose>
-                  </li>
                   {isLogin && (
                     <li>
                       <DrawerClose asChild>
@@ -220,7 +205,6 @@ export default function NarrowHeaderContent({
       )}
       <div className="flex-grow"></div>
       {isLogin && <MeMenuButton />}
-      <ThemeToggleButton />
     </div>
   );
 }

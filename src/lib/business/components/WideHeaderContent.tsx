@@ -6,18 +6,11 @@ import { useGlobalLoginMember } from "@/stores/auth/loginMember";
 
 import { Button } from "@/components/ui/button";
 
-import {
-  MonitorCog,
-  NotebookTabs,
-  TableOfContents,
-  UserRoundSearch,
-} from "lucide-react";
+import { MonitorCog, TableOfContents, UserRoundSearch } from "lucide-react";
 
 import LoginPageButton from "./LoginPageButton";
 import Logo from "./Logo";
 import MeMenuButton from "./MeMenuButton";
-import PostWriteButton from "./PostWriteButton";
-import ThemeToggleButton from "./ThemeToggleButton";
 
 export default function WideHeaderContent({
   className,
@@ -33,19 +26,20 @@ export default function WideHeaderContent({
           <Button variant="link" asChild>
             <Logo text />
           </Button>
-          <Button variant="link" asChild>
-            <Link href="/post/list">
-              <TableOfContents /> 글
-            </Link>
-          </Button>
-          {isLogin && <PostWriteButton text />}
-          {isLogin && (
-            <Button variant="link" asChild>
-              <Link href="/post/mine">
-                <NotebookTabs /> 내글
-              </Link>
+          <div className="relative w-full max-w-md mx-4">
+            <input
+              type="text"
+              placeholder="Search..."
+              className="w-full px-4 py-2 rounded-full border border-input bg-background focus:outline-none focus:ring-2 focus:ring-primary"
+            />
+            <Button
+              variant="ghost"
+              size="icon"
+              className="absolute right-2 top-1/2 transform -translate-y-1/2"
+            >
+              <TableOfContents className="h-4 w-4" />
             </Button>
-          )}
+          </div>
         </>
       )}
 
@@ -71,9 +65,8 @@ export default function WideHeaderContent({
 
       <div className="flex-grow"></div>
 
-      {!isLogin && <LoginPageButton />}
+      {!isLogin && <LoginPageButton text />}
       {isLogin && <MeMenuButton />}
-      <ThemeToggleButton />
     </div>
   );
 }

@@ -4,10 +4,11 @@ import { Post } from "@/types/post";
 import { formatDate } from "@/utils/date";
 import { formatPrice } from "@/utils/price";
 
-import Image from "next/image";
 import Link from "next/link";
 
 import { Star } from "lucide-react";
+
+import { FallbackImage } from "../ui/image";
 
 interface PreviewProps {
   post: Post;
@@ -21,7 +22,7 @@ const Preview = ({ post }: PreviewProps) => {
     <Link href={`/post/${id}`}>
       <div className="w-full cursor-pointer rounded-lg border border-gray-200 p-4 hover:shadow-md transition-box-shadow duration-200">
         <div className="relative aspect-square w-full overflow-hidden rounded-lg">
-          <Image
+          <FallbackImage
             src={thumbnail}
             alt={title}
             fill

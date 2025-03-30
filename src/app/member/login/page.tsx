@@ -7,7 +7,13 @@ import { FaGoogle } from "react-icons/fa";
 import { SiNaver } from "react-icons/si";
 import * as z from "zod";
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
+
+import {
+  createLoginMember,
+  useGlobalLoginMember,
+} from "@/stores/auth/loginMember";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -32,6 +38,7 @@ const formSchema = z.object({
 
 export default function LoginPage() {
   const router = useRouter();
+  const { setLoginMember } = useGlobalLoginMember();
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -70,6 +77,7 @@ export default function LoginPage() {
         });
         return;
       }
+      setLoginMember(createLoginMember());
 
       toast({
         title: "로그인 성공",
@@ -77,6 +85,7 @@ export default function LoginPage() {
       });
 
       router.push("/");
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (_) {
       toast({
         title: "로그인 실패",
@@ -186,6 +195,17 @@ export default function LoginPage() {
               <SiNaver className="h-5 w-5" />
               네이버 로그인
             </Button>
+          </div>
+          <div className="mt-4 text-center">
+            <p className="text-sm text-gray-600">
+              아직 계정이 없으신가요?{" "}
+              <Link
+                href="/member/signup"
+                className="text-blue-600 hover:underline"
+              >
+                회원가입
+              </Link>
+            </p>
           </div>
         </CardContent>
       </Card>

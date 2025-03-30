@@ -11,17 +11,9 @@ export interface Post {
   likes: number;
 }
 
-export interface PostDetail {
-  id: number;
-  title: string;
-  content: string;
+export interface PostDetail extends Post {
   images: string[];
-  price: number;
-  saleStatus: string;
-  viewCount: number;
-  likeCount: number;
-  commentCount: number;
-  createdAt: string;
+  place: string;
   modifiedAt: string;
-  userId: number;
+  likeCount: number;
 }

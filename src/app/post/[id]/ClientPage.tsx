@@ -4,7 +4,6 @@ import { mockUser } from "@/mocks/user";
 import { PostDetail } from "@/types/post";
 import { use } from "react";
 
-import Image from "next/image";
 import Link from "next/link";
 
 import { getDateHr } from "@/lib/business/utils";
@@ -12,11 +11,13 @@ import { getDateHr } from "@/lib/business/utils";
 import { LoginMemberContext } from "@/stores/auth/loginMember";
 
 import { Button } from "@/components/ui/button";
+import { FallbackImage } from "@/components/ui/image";
 
 import { Bell, Clock, Heart, MapPin } from "lucide-react";
 
 export default function ClientPage({ post }: { post: PostDetail }) {
-  const { isAdmin } = use(LoginMemberContext);
+  const { isAdmin, loginMember } = use(LoginMemberContext);
+  const isAuthor = post.authorId === loginMember.id;
 
   return (
     <main className="container mt-8 mx-auto px-4 max-w-[1200px]">
@@ -25,26 +26,29 @@ export default function ClientPage({ post }: { post: PostDetail }) {
         <div className="flex flex-col flex-1 gap-6">
           {/* 상품 이미지 섹션 */}
           <div className="rounded-xl border border-gray-200 shadow-md overflow-hidden">
-            <div key={post.images[0].attachmentId}>
-              <Image
-                src={post.images[0].filePath}
-                alt={post.images[0].fileName}
-                width={800}
-                height={600}
-                className="w-full rounded-lg h-[600px] object-cover hover:scale-105 transition-transform duration-300"
-              />
-            </div>
+            {post.images.length > 0 && (
+              <div>
+                <FallbackImage
+                  src={post.images[0]}
+                  alt={post.images[0]}
+                  width={400}
+                  height={600}
+                  className="w-full rounded-lg h-[600px] object-cover hover:scale-105 transition-transform duration-300"
+                />
+              </div>
+            )}
           </div>
 
           {/* 판매자 정보 */}
           <div className="rounded-xl bg-gray-50 p-6 shadow-sm hover:shadow-md transition-shadow duration-300">
             <div className="flex items-center gap-4">
-              <Image
-                src={mockUser.profileImage!}
+              <FallbackImage
+                src={mockUser.profileImage || "/user.svg"}
                 alt={mockUser.nickname}
                 width={24}
                 height={24}
                 className="w-14 h-14 rounded-full border-2 border-indigo-100 object-cover shadow-sm"
+                fallbackSrc="/user.svg"
               />
               <div className="flex flex-col">
                 <span className="text-lg font-semibold text-gray-800">
@@ -102,7 +106,7 @@ export default function ClientPage({ post }: { post: PostDetail }) {
               className="flex items-center gap-2 text-gray-700 hover:text-indigo-600 hover:bg-indigo-50 rounded-full px-4"
             >
               <Heart className="w-5 h-5" />
-              <span className="font-medium">{post.likes}</span>
+              <span className="font-medium">{post.likeCount}</span>
             </Button>
             <Button
               variant="ghost"
@@ -114,9 +118,9 @@ export default function ClientPage({ post }: { post: PostDetail }) {
           </div>
 
           {/* 관리자/작성자 기능 */}
-          {(isAdmin || post.isAuthor) && (
+          {(isAdmin || isAuthor) && (
             <div className="flex justify-end gap-3 mt-4">
-              {post.isAuthor && (
+              {isAuthor && (
                 <Button
                   asChild
                   variant="outline"

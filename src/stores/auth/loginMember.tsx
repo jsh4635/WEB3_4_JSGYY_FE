@@ -32,7 +32,7 @@ export const LoginMemberContext = createContext<{
   isUserPage: false,
 });
 
-function createEmptyMember(): Member {
+export function createEmptyMember(): Member {
   // client.get("/api/admin/members").then((res) => {
   //   if (res.data?.data) {
   //     console.log(res.data.data);
@@ -47,6 +47,15 @@ function createEmptyMember(): Member {
   };
 }
 
+export function createLoginMember(): Member {
+  return {
+    id: 2,
+    createDate: "2025-03-29T15:00:00.000Z",
+    modifyDate: "2025-03-29T15:00:00.000Z",
+    nickname: "테스트 회원",
+    profileImgUrl: "https://example.com/test.jpg",
+  };
+}
 export function useLoginMember() {
   const router = useRouter();
   const pathname = usePathname();
@@ -68,11 +77,12 @@ export function useLoginMember() {
     setLoginMemberPending(false);
   };
 
+  console.log("loginMember", loginMember);
   const isLogin = loginMember.id !== 0;
   const isAdmin = loginMember.id === 2;
 
   const logout = (callback: () => void) => {
-    client.delete("/api/v1/members/logout").then(() => {
+    client.get("/api/auth/logout").then(() => {
       removeLoginMember();
       callback();
     });

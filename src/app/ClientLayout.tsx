@@ -12,7 +12,11 @@ import Link from "next/link";
 import NarrowHeaderContent from "@/lib/business/components/NarrowHeaderContent";
 import WideHeaderContent from "@/lib/business/components/WideHeaderContent";
 
-import { LoginMemberContext, useLoginMember } from "@/stores/auth/loginMember";
+import {
+  LoginMemberContext,
+  createEmptyMember,
+  useLoginMember,
+} from "@/stores/auth/loginMember";
 
 import { Button } from "@/components/ui/button";
 
@@ -49,13 +53,7 @@ export function ClientLayout({
 
   useEffect(() => {
     const fetchMember = () => {
-      setLoginMember({
-        id: 2,
-        createDate: "2025-03-28T00:00:00.000+09:00",
-        modifyDate: "2025-03-28T00:00:00.000+09:00",
-        nickname: "test",
-        profileImgUrl: "https://example.com/test.jpg",
-      });
+      setLoginMember(createEmptyMember());
       // client.GET("/api/v1/members/me").then((res) => {
       //   if (res.error) {
       //     setNoLoginMember();
@@ -85,7 +83,7 @@ export function ClientLayout({
       disableTransitionOnChange
     >
       <LoginMemberContext value={loginMemberContextValue}>
-        <header>
+        <header className="py-4">
           <NarrowHeaderContent className="flex sm:hidden" />
           <WideHeaderContent className="hidden sm:flex" />
         </header>
@@ -94,7 +92,7 @@ export function ClientLayout({
           {isUserPage && (
             <Button variant="link" asChild>
               <Link href="/">
-                <Copyright /> 2025 글로그
+                <Copyright /> Bid & Buy
               </Link>
             </Button>
           )}
@@ -103,7 +101,7 @@ export function ClientLayout({
             <Button variant="link" asChild>
               <Link href="/adm">
                 <MonitorCog />
-                글로그 관리자 페이지
+                Bid & Buy 관리자 페이지
               </Link>
             </Button>
           )}

@@ -32,7 +32,7 @@ export default function LoginPageButton({
 
   return (
     <Button {...props} variant={variant} className={className} asChild>
-      <Link href="/">
+      <Link href="/member/login">
         {icon || <LogIn />}
         {text && <span>{text}</span>}
       </Link>
