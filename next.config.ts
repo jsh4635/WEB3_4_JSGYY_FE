@@ -34,6 +34,7 @@ const nextConfig: NextConfig = {
       },
     ],
     contentSecurityPolicy: "default-src 'self'; img-src 'self' data: https:;",
+    domains: ["43.203.93.186"],
   },
   async headers() {
     return [
@@ -45,6 +46,14 @@ const nextConfig: NextConfig = {
             value: "frame-ancestors 'self' https://*.figma.com;",
           },
         ],
+      },
+    ];
+  },
+  async rewrites() {
+    return [
+      {
+        source: "/api/:path*",
+        destination: "http://43.203.93.186:8080/api/:path*",
       },
     ];
   },

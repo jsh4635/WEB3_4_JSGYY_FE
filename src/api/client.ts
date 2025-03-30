@@ -3,7 +3,7 @@ import axios from "axios";
 const isBrowser = typeof window !== "undefined";
 
 export const client = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL || "http://43.203.93.186:8080/api",
+  baseURL: "/api",
   headers: {
     "Content-Type": "application/json",
   },
