@@ -7,11 +7,11 @@ import ClientPage from "./ClientPage";
 export default async function Page({
   params,
 }: {
-  params: { id: string; genFileId: string };
+  params: Promise<{ id: string; genFileId: string }>;
 }) {
   const { id, genFileId } = await params;
 
-  const genFileResponse = await client.GET(
+  const genFileResponse = await client.get(
     "/api/v1/posts/{postId}/genFiles/{id}",
     {
       params: {
@@ -23,10 +23,10 @@ export default async function Page({
     },
   );
 
-  if (genFileResponse.error) {
+  if (genFileResponse.status !== 200) {
     return (
       <div className="flex-1 flex items-center justify-center">
-        {genFileResponse.error.msg}
+        {genFileResponse.data.msg}
       </div>
     );
   }

@@ -5,7 +5,7 @@ import client from "@/lib/backend/client";
 import ClientPage from "./ClientPage";
 
 async function getPost(id: string) {
-  const res = await client.GET("/api/v1/posts/{id}", {
+  const res = await client.get("/api/v1/posts/{id}", {
     params: {
       path: {
         id: parseInt(id),
@@ -19,14 +19,18 @@ async function getPost(id: string) {
   return res;
 }
 
-export default async function Page({ params }: { params: { id: string } }) {
+export default async function Page({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
   const { id } = await params;
   const postResponse = await getPost(id);
 
-  if (postResponse.error) {
+  if (postResponse.status !== 200) {
     return (
       <div className="flex-1 flex items-center justify-center">
-        {postResponse.error.msg}
+        {postResponse.data.msg}
       </div>
     );
   }

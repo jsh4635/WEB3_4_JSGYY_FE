@@ -77,7 +77,6 @@ export function useLoginMember() {
     setLoginMemberPending(false);
   };
 
-  console.log("loginMember", loginMember);
   const isLogin = loginMember.id !== 0;
   const isAdmin = loginMember.id === 2;
 

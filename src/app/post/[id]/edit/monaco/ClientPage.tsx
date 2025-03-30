@@ -79,7 +79,7 @@ export default function ClientPage({
     try {
       const { title, published, listed, content } = parseConfig(value.trim());
 
-      const response = await client.PUT("/api/v1/posts/{id}", {
+      const response = await client.put("/api/v1/posts/{id}", {
         params: {
           path: {
             id: post.id,
@@ -93,9 +93,9 @@ export default function ClientPage({
         },
       });
 
-      if (response.error) {
+      if (response.status !== 200) {
         toast({
-          title: response.error.msg,
+          title: response.data.msg,
         });
 
         return;

@@ -4,24 +4,29 @@ import client from "@/lib/backend/client";
 
 import ClientPage from "./ClientPage";
 
+type SearchParamsType = {
+  searchKeywordType?: "all" | "username" | "nickname";
+  searchKeyword?: string;
+  pageSize?: string;
+  page?: string;
+};
+
 export default async function Page({
   searchParams,
 }: {
-  searchParams: {
-    searchKeywordType?: "all" | "username" | "nickname";
-    searchKeyword?: string;
-    pageSize?: number;
-    page?: number;
-  };
+  searchParams: Promise<SearchParamsType>;
 }) {
   const {
     searchKeyword = "",
     searchKeywordType = "all",
-    pageSize = 30,
-    page = 1,
+    pageSize: pageSizeStr = "30",
+    page: pageStr = "1",
   } = await searchParams;
 
-  const response = await client.GET("/api/v1/adm/members", {
+  const pageSize = parseInt(pageSizeStr);
+  const page = parseInt(pageStr);
+
+  const response = await client.get("/api/v1/adm/members", {
     params: {
       query: {
         searchKeyword,
@@ -31,7 +36,7 @@ export default async function Page({
       },
     },
     headers: {
-      cookie: (await cookies()).toString(),
+      cookie: cookies().toString(),
     },
   });
 

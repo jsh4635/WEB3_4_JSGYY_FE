@@ -58,7 +58,7 @@ export default function ClientPage({
     const formData = new FormData();
     formData.append("file", data.file);
 
-    const response = await client.PUT("/api/v1/posts/{postId}/genFiles/{id}", {
+    const response = await client.put("/api/v1/posts/{postId}/genFiles/{id}", {
       params: {
         path: {
           postId: parseInt(id),
@@ -68,9 +68,9 @@ export default function ClientPage({
       body: formData as any, // eslint-disable-line @typescript-eslint/no-explicit-any
     });
 
-    if (response.error) {
+    if (response.status !== 200) {
       toast({
-        title: response.error.msg,
+        title: response.data.msg,
         variant: "destructive",
       });
       return;

@@ -27,7 +27,7 @@ export default function ClientPage({
   const { toast } = useToast();
 
   const onDelete = async () => {
-    const response = await client.DELETE(
+    const response = await client.delete(
       "/api/v1/posts/{postId}/genFiles/{id}",
       {
         params: {
@@ -39,9 +39,9 @@ export default function ClientPage({
       },
     );
 
-    if (response.error) {
+    if (response.status !== 200) {
       toast({
-        title: response.error.msg,
+        title: response.data.msg,
         variant: "destructive",
       });
       return;

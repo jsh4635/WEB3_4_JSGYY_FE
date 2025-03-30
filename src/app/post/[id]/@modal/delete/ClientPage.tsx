@@ -21,7 +21,7 @@ export default function ClientPage({ id }: { id: string }) {
   const { toast } = useToast();
 
   const onDelete = async () => {
-    const response = await client.DELETE("/api/v1/posts/{id}", {
+    const response = await client.delete("/api/v1/posts/{id}", {
       params: {
         path: {
           id: parseInt(id),
@@ -29,9 +29,9 @@ export default function ClientPage({ id }: { id: string }) {
       },
     });
 
-    if (response.error) {
+    if (response.status !== 200) {
       toast({
-        title: response.error.msg,
+        title: response.data.msg,
         variant: "destructive",
       });
       return;

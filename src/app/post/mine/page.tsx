@@ -7,21 +7,24 @@ import ClientPage from "./ClientPage";
 export default async function Page({
   searchParams,
 }: {
-  searchParams: {
+  searchParams: Promise<{
     searchKeywordType?: "all" | "title" | "content" | "author";
     searchKeyword?: string;
-    pageSize?: number;
-    page?: number;
-  };
+    pageSize?: string;
+    page?: string;
+  }>;
 }) {
   const {
     searchKeyword = "",
     searchKeywordType = "all",
-    pageSize = 30,
-    page = 1,
+    pageSize: pageSizeStr = "30",
+    page: pageStr = "1",
   } = await searchParams;
 
-  const response = await client.GET("/api/v1/posts/mine", {
+  const pageSize = parseInt(pageSizeStr);
+  const page = parseInt(pageStr);
+
+  const response = await client.get("/api/v1/posts/mine", {
     params: {
       query: {
         searchKeyword,

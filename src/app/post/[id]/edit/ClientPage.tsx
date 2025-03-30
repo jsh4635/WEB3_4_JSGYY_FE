@@ -139,7 +139,7 @@ export default function ClientPage({
       const formData = new FormData();
       formData.append("file", file);
 
-      return await client.PUT(
+      return await client.put(
         "/api/v1/posts/{postId}/genFiles/{typeCode}/{fileNo}",
         {
           params: {
@@ -164,7 +164,7 @@ export default function ClientPage({
     const formData = new FormData();
     files.forEach((file) => formData.append("files", file));
 
-    return await client.POST("/api/v1/posts/{postId}/genFiles/{typeCode}", {
+    return await client.post("/api/v1/posts/{postId}/genFiles/{typeCode}", {
       params: {
         path: {
           postId,
@@ -186,7 +186,7 @@ export default function ClientPage({
     const isPostContentChanged = data.content !== post.content;
 
     if (isPostDataChanged) {
-      const response = await client.PUT("/api/v1/posts/{id}", {
+      const response = await client.put("/api/v1/posts/{id}", {
         params: {
           path: {
             id: post.id,
@@ -200,9 +200,9 @@ export default function ClientPage({
         },
       });
 
-      if (response.error) {
+      if (response.status !== 200) {
         toast({
-          title: response.error.msg,
+          title: response.data.msg,
           variant: "destructive",
         });
         return;
@@ -236,9 +236,9 @@ export default function ClientPage({
         post.id,
       );
 
-      if (thumbnailResponse.error) {
+      if (thumbnailResponse.status !== 200) {
         toast({
-          title: thumbnailResponse.error.msg,
+          title: thumbnailResponse.data.msg,
           variant: "destructive",
         });
       }
@@ -250,9 +250,9 @@ export default function ClientPage({
         post.id,
       );
 
-      if (uploadResponse.error) {
+      if (uploadResponse.status !== 200) {
         toast({
-          title: uploadResponse.error.msg,
+          title: uploadResponse.data.msg,
           variant: "destructive",
         });
         return;

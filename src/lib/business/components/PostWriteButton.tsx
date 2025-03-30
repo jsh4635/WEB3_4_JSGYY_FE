@@ -30,11 +30,11 @@ const PostWriteButton = ({
       onClick(e);
     }
 
-    const response = await client.POST("/api/v1/posts/temp");
+    const response = await client.post("/api/v1/posts/temp");
 
-    if (response.error) {
+    if (response.status !== 200) {
       toast({
-        title: response.error.msg,
+        title: response.data.msg,
         variant: "destructive",
       });
     } else {

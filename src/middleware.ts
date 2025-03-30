@@ -31,18 +31,16 @@ export async function middleware(req: NextRequest) {
 }
 
 async function refreshTokens(cookieStore: ReadonlyRequestCookies) {
-  const meResponse = await client.GET("/api/v1/members/me", {
+  const meResponse = await client.get("/api/v1/members/me", {
     headers: {
       cookie: cookieStore.toString(),
     },
   });
 
-  const setCookieHeader = meResponse.response.headers.get("Set-Cookie");
+  const setCookieHeaders = meResponse.headers["set-cookie"];
 
-  if (setCookieHeader) {
-    const cookies = setCookieHeader.split(",");
-
-    for (const cookieStr of cookies) {
+  if (setCookieHeaders) {
+    for (const cookieStr of setCookieHeaders) {
       const cookieData = parseCookie(cookieStr);
 
       if (cookieData) {

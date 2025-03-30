@@ -1,6 +1,5 @@
 "use client";
 
-import { mockUser } from "@/mocks/user";
 import { PostDetail } from "@/types/post";
 import { use } from "react";
 
@@ -43,8 +42,8 @@ export default function ClientPage({ post }: { post: PostDetail }) {
           <div className="rounded-xl bg-gray-50 p-6 shadow-sm hover:shadow-md transition-shadow duration-300">
             <div className="flex items-center gap-4">
               <FallbackImage
-                src={mockUser.profileImage || "/user.svg"}
-                alt={mockUser.nickname}
+                src={loginMember.profileImgUrl || "/user.svg"}
+                alt={loginMember.nickname}
                 width={24}
                 height={24}
                 className="w-14 h-14 rounded-full border-2 border-indigo-100 object-cover shadow-sm"
@@ -52,10 +51,10 @@ export default function ClientPage({ post }: { post: PostDetail }) {
               />
               <div className="flex flex-col">
                 <span className="text-lg font-semibold text-gray-800">
-                  {mockUser.nickname}
+                  {loginMember.nickname}
                 </span>
                 <span className="text-sm text-gray-500">
-                  {mockUser.address}
+                  {loginMember.nickname}
                 </span>
               </div>
               <Button

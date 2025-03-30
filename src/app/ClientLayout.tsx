@@ -54,7 +54,7 @@ export function ClientLayout({
   useEffect(() => {
     const fetchMember = () => {
       setLoginMember(createEmptyMember());
-      // client.GET("/api/v1/members/me").then((res) => {
+      // client.get("/api/v1/members/me").then((res) => {
       //   if (res.error) {
       //     setNoLoginMember();
       //   } else {

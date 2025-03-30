@@ -1,5 +1,7 @@
 import axios from "axios";
 
+const isBrowser = typeof window !== "undefined";
+
 export const client = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL || "http://43.203.93.186:8080/api",
   headers: {
@@ -9,9 +11,11 @@ export const client = axios.create({
 
 client.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem("accessToken");
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
+    if (isBrowser) {
+      const token = localStorage.getItem("accessToken");
+      if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+      }
     }
     return config;
   },
@@ -24,7 +28,12 @@ client.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
-    if (error.response.status === 401 && !originalRequest._retry) {
+    console.log("error", error);
+    if (
+      error.response?.status === 401 &&
+      !originalRequest._retry &&
+      isBrowser
+    ) {
       originalRequest._retry = true;
       try {
         const refreshToken = localStorage.getItem("refreshToken");

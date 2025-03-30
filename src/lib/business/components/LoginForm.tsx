@@ -51,16 +51,16 @@ export default function LoginForm() {
   });
 
   const onSubmit = async (data: LoginFormInputs) => {
-    const response = await client.POST("/api/v1/members/login", {
+    const response = await client.post("/api/v1/members/login", {
       body: {
         username: data.username,
         password: data.password,
       },
     });
 
-    if (response.error) {
+    if (response.status !== 200) {
       toast({
-        title: response.error.msg,
+        title: response.data.msg,
         variant: "destructive",
       });
       return;
