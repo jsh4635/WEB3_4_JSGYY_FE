@@ -56,16 +56,19 @@ export default function LoginPage() {
     setIsLoading(true);
 
     try {
-      const response = await fetch("http://43.203.93.186:8080/api/auth/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
+      const response = await fetch(
+        "https://43.203.93.186.sslip.io/api/auth/login",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            username: values.id,
+            password: values.password,
+          }),
         },
-        body: JSON.stringify({
-          username: values.id,
-          password: values.password,
-        }),
-      });
+      );
 
       const data = await response.json();
 
