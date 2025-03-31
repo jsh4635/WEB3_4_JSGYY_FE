@@ -78,8 +78,9 @@ export function ClientLayout({
   return (
     <NextThemesProvider
       attribute="class"
-      defaultTheme="system"
-      enableSystem
+      defaultTheme="light"
+      enableSystem={false}
+      forcedTheme="light"
       disableTransitionOnChange
     >
       <LoginMemberContext value={loginMemberContextValue}>
