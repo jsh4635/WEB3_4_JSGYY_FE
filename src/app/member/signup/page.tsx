@@ -62,7 +62,7 @@ export default function SignupPage() {
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
       const response = await fetch(
-        "http://43.203.93.186:8080/api/auth/register",
+        "https://43.203.93.186.sslip.io/api/auth/register",
         {
           method: "POST",
           headers: {

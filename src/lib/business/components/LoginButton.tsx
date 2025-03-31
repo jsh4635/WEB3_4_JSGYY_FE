@@ -25,8 +25,8 @@ export default function LoginButton({
   icon?: React.ReactNode;
   providerTypeCode?: string;
 }) {
-  const socialLoginForKakaoUrl = `http://localhost:8080/oauth2/authorization/${providerTypeCode}`;
-  const redirectUrlAfterSocialLogin = "http://localhost:3000";
+  const socialLoginForKakaoUrl = `https://43.203.93.186.sslip.io/oauth2/authorization/${providerTypeCode}`;
+  const redirectUrlAfterSocialLogin = "https://43.203.93.186.sslip.io";
   if (!variant) variant = "link";
   if (typeof text === "boolean") text = "로그인";
 
