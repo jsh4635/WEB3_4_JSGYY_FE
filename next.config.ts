@@ -5,10 +5,6 @@ const nextConfig: NextConfig = {
     dangerouslyAllowSVG: true,
     remotePatterns: [
       {
-        protocol: "http",
-        hostname: "*.kakaocdn.net",
-      },
-      {
         protocol: "https",
         hostname: "*.kakaocdn.net",
       },
@@ -21,10 +17,6 @@ const nextConfig: NextConfig = {
         hostname: "*.pstatic.net",
       },
       {
-        protocol: "http",
-        hostname: "localhost",
-      },
-      {
         protocol: "https",
         hostname: "example.com",
       },
@@ -35,19 +27,6 @@ const nextConfig: NextConfig = {
     ],
     contentSecurityPolicy: "default-src 'self'; img-src 'self' data: https:;",
     domains: ["43.203.93.186", "43.203.93.186.sslip.io"],
-  },
-  async headers() {
-    return [
-      {
-        source: "/:path*",
-        headers: [
-          {
-            key: "Content-Security-Policy",
-            value: "frame-ancestors 'self' https://*.figma.com;",
-          },
-        ],
-      },
-    ];
   },
 };
 

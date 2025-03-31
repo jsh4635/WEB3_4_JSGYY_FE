@@ -25,8 +25,8 @@ export default function LoginButton({
   icon?: React.ReactNode;
   providerTypeCode?: string;
 }) {
-  const socialLoginForKakaoUrl = `https://43.203.93.186.sslip.io/oauth2/authorization/${providerTypeCode}`;
-  const redirectUrlAfterSocialLogin = "https://43.203.93.186.sslip.io";
+  const socialLoginForKakaoUrl = `${process.env.NEXT_PUBLIC_API_URL}/oauth2/authorization/${providerTypeCode}`;
+  const redirectUrlAfterSocialLogin = process.env.NEXT_PUBLIC_REDIRECT_URL;
   if (!variant) variant = "link";
   if (typeof text === "boolean") text = "로그인";
 

@@ -57,7 +57,7 @@ export default function LoginPage() {
 
     try {
       const response = await fetch(
-        "https://43.203.93.186.sslip.io/api/auth/login",
+        `${process.env.NEXT_PUBLIC_API_URL}/api/auth/login`,
         {
           method: "POST",
           headers: {
