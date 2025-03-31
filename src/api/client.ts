@@ -3,7 +3,7 @@ import axios from "axios";
 const isBrowser = typeof window !== "undefined";
 
 export const client = axios.create({
-  baseURL: "https://43.203.93.186.sslip.io/api",
+  baseURL: `${process.env.NEXT_PUBLIC_API_URL}/api`,
   headers: {
     "Content-Type": "application/json",
   },

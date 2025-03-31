@@ -26,7 +26,7 @@ const nextConfig: NextConfig = {
       },
     ],
     contentSecurityPolicy: "default-src 'self'; img-src 'self' data: https:;",
-    domains: ["43.203.93.186", "43.203.93.186.sslip.io"],
+    domains: [process.env.NEXT_PUBLIC_API_DOMAIN || ""],
   },
 };
 
