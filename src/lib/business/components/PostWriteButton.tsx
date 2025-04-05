@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import client from "@/lib/backend/client";
 
 import { Button } from "@/components/ui/button";
+import { Text } from "@/components/ui/typography";
 
 import { useToast } from "@/hooks/use-toast";
 
@@ -53,8 +54,10 @@ const PostWriteButton = ({
       onClick={handleClick}
       {...props}
     >
-      <Pencil />
-      {text && "작성"}
+      <div className="flex items-center gap-2">
+        <Pencil className="h-4 w-4" />
+        {text && <Text>작성</Text>}
+      </div>
     </Button>
   );
 };

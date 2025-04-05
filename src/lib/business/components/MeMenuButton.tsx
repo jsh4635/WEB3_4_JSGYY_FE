@@ -12,6 +12,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { FallbackImage } from "@/components/ui/image";
+import { Text } from "@/components/ui/typography";
 
 import { LogOut, MonitorCog, User } from "lucide-react";
 
@@ -36,23 +37,30 @@ export default function MeMenuButton() {
       <DropdownMenuContent align="end">
         <DropdownMenuItem>
           <Button variant="link" className="w-full justify-start" asChild>
-            <Link href="/member/me">
-              <User /> {loginMember.nickname}
+            <Link href="/member/me" className="flex items-center gap-2">
+              <User className="h-4 w-4" />
+              <Text>{loginMember.nickname}</Text>
             </Link>
           </Button>
         </DropdownMenuItem>
         {isAdmin && (
           <DropdownMenuItem>
             <Button variant="link" className="w-full justify-start" asChild>
-              <Link href="/adm">
-                <MonitorCog /> 관리자 홈
+              <Link href="/adm" className="flex items-center gap-2">
+                <MonitorCog className="h-4 w-4" />
+                <Text>관리자 홈</Text>
               </Link>
             </Button>
           </DropdownMenuItem>
         )}
         <DropdownMenuItem>
-          <Button variant="link" onClick={logoutAndHome}>
-            <LogOut /> 로그아웃
+          <Button
+            variant="link"
+            onClick={logoutAndHome}
+            className="flex items-center gap-2"
+          >
+            <LogOut className="h-4 w-4" />
+            <Text>로그아웃</Text>
           </Button>
         </DropdownMenuItem>
       </DropdownMenuContent>

@@ -3,14 +3,12 @@
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
-
-import { LogIn } from "lucide-react";
+import { Text } from "@/components/ui/typography";
 
 export default function LoginPageButton({
   variant,
   className,
   text,
-  icon,
   ...props
 }: {
   variant?:
@@ -24,7 +22,6 @@ export default function LoginPageButton({
     | undefined;
   className?: string;
   text?: string | boolean;
-  icon?: React.ReactNode;
   providerTypeCode?: string;
 }) {
   if (!variant) variant = "link";
@@ -32,10 +29,7 @@ export default function LoginPageButton({
 
   return (
     <Button {...props} variant={variant} className={className} asChild>
-      <Link href="/member/login">
-        {icon || <LogIn />}
-        {text && <span>{text}</span>}
-      </Link>
+      <Link href="/member/login">{text && <Text>{text}</Text>}</Link>
     </Button>
   );
 }

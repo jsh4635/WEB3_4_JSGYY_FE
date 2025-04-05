@@ -15,6 +15,7 @@ import {
   DrawerTrigger,
 } from "@/components/ui/drawer";
 import { Separator } from "@/components/ui/separator";
+import { Text } from "@/components/ui/typography";
 
 import {
   LogOut,
@@ -79,8 +80,12 @@ export default function NarrowHeaderContent({
                           className="w-full justify-start"
                           asChild
                         >
-                          <Link href="/post/mine">
-                            <NotebookTabs /> 내글
+                          <Link
+                            href="/post/mine"
+                            className="flex items-center gap-2"
+                          >
+                            <NotebookTabs className="h-4 w-4" />
+                            <Text>내글</Text>
                           </Link>
                         </Button>
                       </DrawerClose>
@@ -98,8 +103,9 @@ export default function NarrowHeaderContent({
                         className="w-full justify-start"
                         asChild
                       >
-                        <Link href="/adm">
-                          <MonitorCog /> 관리자 홈
+                        <Link href="/adm" className="flex items-center gap-2">
+                          <MonitorCog className="h-4 w-4" />
+                          <Text>관리자 홈</Text>
                         </Link>
                       </Button>
                     </DrawerClose>
@@ -112,8 +118,12 @@ export default function NarrowHeaderContent({
                         className="w-full justify-start"
                         asChild
                       >
-                        <Link href="/adm/member/list">
-                          <UserRoundSearch /> 회원관리
+                        <Link
+                          href="/adm/member/list"
+                          className="flex items-center gap-2"
+                        >
+                          <UserRoundSearch className="h-4 w-4" />
+                          <Text>회원관리</Text>
                         </Link>
                       </Button>
                     </DrawerClose>
@@ -155,8 +165,12 @@ export default function NarrowHeaderContent({
                       className="w-full justify-start"
                       asChild
                     >
-                      <Link href="/member/me">
-                        <User /> {loginMember.nickname}
+                      <Link
+                        href="/member/me"
+                        className="flex items-center gap-2"
+                      >
+                        <User className="h-4 w-4" />
+                        <Text>{loginMember.nickname}</Text>
                       </Link>
                     </Button>
                   </DrawerClose>
@@ -170,8 +184,9 @@ export default function NarrowHeaderContent({
                       className="w-full justify-start"
                       asChild
                     >
-                      <Link href="/adm">
-                        <MonitorCog /> 관리자 홈
+                      <Link href="/adm" className="flex items-center gap-2">
+                        <MonitorCog className="h-4 w-4" />
+                        <Text>관리자 홈</Text>
                       </Link>
                     </Button>
                   </DrawerClose>
@@ -180,8 +195,13 @@ export default function NarrowHeaderContent({
               {isLogin && (
                 <li>
                   <DrawerClose asChild>
-                    <Button variant="link" onClick={logoutAndHome}>
-                      <LogOut /> 로그아웃
+                    <Button
+                      variant="link"
+                      onClick={logoutAndHome}
+                      className="flex items-center gap-2"
+                    >
+                      <LogOut className="h-4 w-4" />
+                      <Text>로그아웃</Text>
                     </Button>
                   </DrawerClose>
                 </li>

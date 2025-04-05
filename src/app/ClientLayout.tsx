@@ -19,6 +19,7 @@ import {
 } from "@/stores/auth/loginMember";
 
 import { Button } from "@/components/ui/button";
+import { Text } from "@/components/ui/typography";
 
 import { Copyright, LogIn, MonitorCog } from "lucide-react";
 
@@ -70,7 +71,7 @@ export function ClientLayout({
   if (isLoginMemberPending) {
     return (
       <div className="flex-1 flex justify-center items-center text-muted-foreground">
-        인증 정보 로딩중...
+        <Text>인증 정보 로딩중...</Text>
       </div>
     );
   }
@@ -92,25 +93,30 @@ export function ClientLayout({
         <footer className="p-2 flex justify-center">
           {isUserPage && (
             <Button variant="link" asChild>
-              <Link href="/">
-                <Copyright /> Bid & Buy
+              <Link href="/" className="flex items-center gap-1">
+                <Copyright className="h-4 w-4" />
+                <Text>Bid & Buy</Text>
               </Link>
             </Button>
           )}
 
           {isAdminPage && (
             <Button variant="link" asChild>
-              <Link href="/adm">
-                <MonitorCog />
-                Bid & Buy 관리자 페이지
+              <Link href="/adm" className="flex items-center gap-1">
+                <MonitorCog className="h-4 w-4" />
+                <Text>Bid & Buy 관리자 페이지</Text>
               </Link>
             </Button>
           )}
 
           {!isLogin && (
             <Button variant="link" asChild>
-              <Link href="/adm/member/login">
-                <LogIn /> 관리자 로그인
+              <Link
+                href="/adm/member/login"
+                className="flex items-center gap-1"
+              >
+                <LogIn className="h-4 w-4" />
+                <Text>관리자 로그인</Text>
               </Link>
             </Button>
           )}
