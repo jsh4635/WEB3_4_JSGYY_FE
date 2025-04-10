@@ -2,9 +2,9 @@
 
 import Filter from "@/components/post/Filter";
 import {
-  MockDataProvider,
-  useMockData,
-} from "@/components/post/MockDataProvider";
+  PostDataProvider,
+  usePostData,
+} from "@/components/post/PostDataProvider";
 import Preview from "@/components/post/Preview";
 import { useCallback, useState } from "react";
 
@@ -22,7 +22,7 @@ const ITEMS_PER_PAGE = 20;
 function MainPageContent() {
   const [currentPage] = useState(1);
   const { isLogin } = useGlobalLoginMember();
-  const { filteredPosts, isLoading } = useMockData();
+  const { filteredPosts, isLoading } = usePostData();
 
   const indexOfLastItem = currentPage * ITEMS_PER_PAGE;
   const indexOfFirstItem = indexOfLastItem - ITEMS_PER_PAGE;
@@ -160,8 +160,8 @@ function MainPageContent() {
 
 export default function MainPage() {
   return (
-    <MockDataProvider initialPostCount={50}>
+    <PostDataProvider>
       <MainPageContent />
-    </MockDataProvider>
+    </PostDataProvider>
   );
 }

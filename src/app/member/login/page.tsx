@@ -1,5 +1,7 @@
 "use client";
 
+import { api } from "@/api";
+import { LoginDto } from "@/api/generated/models";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
@@ -56,43 +58,38 @@ export default function LoginPage() {
     setIsLoading(true);
 
     try {
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/auth/login`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            username: values.id,
-            password: values.password,
-          }),
-        },
-      );
+      // API 클라이언트를 사용하여 로그인 요청
+      const loginDto: LoginDto = {
+        username: values.id,
+        password: values.password,
+      };
 
-      const data = await response.json();
+      const response = await api.login({ loginDto });
+      console.log("응답 정보:", response.status, response.statusText);
 
-      if (!response.ok) {
+      // 로그인 성공 시 쿠키가 자동으로 설정됨
+      if (response.status === 200) {
+        // 로그인 멤버 정보 설정
+        setLoginMember(createLoginMember());
+
+        toast({
+          title: "로그인 성공",
+          description: "로그인이 완료되었습니다.",
+        });
+
+        router.push("/");
+      } else {
         toast({
           title: "로그인 실패",
-          description: data.message || "로그인 중 오류가 발생했습니다.",
+          description: "로그인에 실패했습니다.",
           variant: "destructive",
         });
-        return;
       }
-      setLoginMember(createLoginMember());
-
-      toast({
-        title: "로그인 성공",
-        description: "로그인이 완료되었습니다.",
-      });
-
-      router.push("/");
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    } catch (_) {
+    } catch (error) {
+      console.error("로그인 오류:", error);
       toast({
         title: "로그인 실패",
-        description: "서버 오류가 발생했습니다.",
+        description: "아이디 또는 비밀번호가 올바르지 않습니다.",
         variant: "destructive",
       });
     } finally {

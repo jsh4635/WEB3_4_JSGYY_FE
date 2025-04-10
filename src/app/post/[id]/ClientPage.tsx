@@ -1,6 +1,7 @@
 "use client";
 
-import { PostDetail, createMockPost } from "@/types/post";
+import { api } from "@/api";
+import { PostDetail } from "@/types/post";
 import { use, useEffect, useState } from "react";
 
 import Link from "next/link";
@@ -21,21 +22,16 @@ import {
   Share2,
 } from "lucide-react";
 
-// 상세 페이지용 모의 데이터 생성 함수
-const getMockPostDetail = (id: number): PostDetail => {
-  return {
-    ...createMockPost({
-      id,
-      title: `모의 상품 ${id}`,
-      price: Math.floor(Math.random() * 100000) + 5000,
-      content: `이것은 모의 상품 ${id}의 상세 설명입니다. 당근마켓에서 판매하는 상품입니다.\n\n상품 상태: 새 상품에 가깝습니다.\n거래 방법: 직거래 우선, 택배 가능합니다.\n\n관심 있으신 분은 채팅 주세요!`,
-      images: [
-        `/placeholder-${(id % 5) + 1}.jpg`,
-        `/placeholder-${((id + 1) % 5) + 1}.jpg`,
-        `/placeholder-${((id + 2) % 5) + 1}.jpg`,
-      ],
-    }),
-  };
+// API를 사용하여 게시글 상세 조회
+const getPostDetail = async (id: number): Promise<PostDetail> => {
+  try {
+    const response = await api.getPost({ postId: id });
+    // API 응답을 PostDetail 타입으로 변환
+    return response.data as PostDetail;
+  } catch (error) {
+    console.error("게시글을 불러오는데 실패했습니다.", error);
+    throw error;
+  }
 };
 
 export default function ClientPage({ postId }: { postId: number }) {
@@ -46,13 +42,19 @@ export default function ClientPage({ postId }: { postId: number }) {
   const { isAdmin, loginMember } = use(LoginMemberContext);
 
   useEffect(() => {
-    // 모의 데이터 로딩 시뮬레이션
-    const timer = setTimeout(() => {
-      setPost(getMockPostDetail(postId));
-      setIsLoading(false);
-    }, 300);
+    const fetchPost = async () => {
+      try {
+        setIsLoading(true);
+        const data = await getPostDetail(postId);
+        setPost(data);
+      } catch (error) {
+        console.error("게시글을 불러오는데 실패했습니다.", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
-    return () => clearTimeout(timer);
+    fetchPost();
   }, [postId]);
 
   if (isLoading || !post) {

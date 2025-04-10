@@ -1,5 +1,7 @@
 "use client";
 
+import { api } from "@/api";
+import { MemberDTO } from "@/api/generated/models";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
@@ -44,6 +46,7 @@ export default function SignupPage() {
   const { toast } = useToast();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -61,35 +64,22 @@ export default function SignupPage() {
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/auth/register`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            name: values.name,
-            username: values.id,
-            password: values.password,
-            password2: values.confirmPassword,
-            nickname: values.nickname,
-            email: values.email,
-            phone_num: values.phoneNumber,
-          }),
-        },
-      );
+      setIsLoading(true);
 
-      const data = await response.json();
+      // API 클라이언트를 사용하여 회원가입 요청
+      const memberDTO: MemberDTO = {
+        name: values.name,
+        username: values.id,
+        password: values.password,
+        password2: values.confirmPassword,
+        nickname: values.nickname,
+        email: values.email,
+        phoneNum: values.phoneNumber,
+        role: "USER",
+        address: values.location,
+      };
 
-      if (!response.ok) {
-        toast({
-          title: "회원가입 실패",
-          description: data.message || "회원가입 중 오류가 발생했습니다.",
-          variant: "destructive",
-        });
-        return;
-      }
+      await api.register({ memberDTO });
 
       toast({
         title: "회원가입 성공",
@@ -97,13 +87,15 @@ export default function SignupPage() {
       });
 
       router.push("/member/login");
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    } catch (_) {
+    } catch (error) {
+      console.error("회원가입 오류:", error);
       toast({
         title: "회원가입 실패",
-        description: "서버 오류가 발생했습니다.",
+        description: "회원가입 중 오류가 발생했습니다.",
         variant: "destructive",
       });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -180,8 +172,9 @@ export default function SignupPage() {
               <Button
                 type="submit"
                 className="w-full bg-black text-white rounded-full select-none"
+                disabled={isLoading}
               >
-                회원가입
+                {isLoading ? "처리 중..." : "회원가입"}
               </Button>
             </form>
           </Form>
