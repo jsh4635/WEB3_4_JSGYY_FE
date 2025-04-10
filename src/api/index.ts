@@ -9,6 +9,8 @@ const axiosInstance = axios.create({
   withCredentials: true,
 });
 
+const token =
+  "eyJhbGciOiJIUzI1NiJ9.eyJjYXRlZ29yeSI6ImFjY2VzcyIsInVzZXJuYW1lIjoidGVzdCIsInJvbGUiOiJST0xFX0FETUlOIiwibWVtYmVySWQiOjYsImlhdCI6MTc0NDI5OTI1MCwiZXhwIjoxNzQ0MzAyODUwfQ.9asKZgWby41MT9soKR5xy8FbImJnJWOx1jtNqBXoZ6s";
 const apiConfig = new Configuration({
   basePath:
     process.env.NEXT_PUBLIC_API_URL || "https://api.app1.springservice.shop",
@@ -17,8 +19,15 @@ const apiConfig = new Configuration({
     withCredentials: true,
     headers: {
       "Content-Type": "application/json",
+      Access: `${token}`,
     },
   },
+});
+
+// 토큰 설정 후 인스턴스 생성하기
+axiosInstance.interceptors.request.use((config) => {
+  config.headers.Authorization = `${token}`;
+  return config;
 });
 
 // API 인스턴스 생성 - 커스텀 axios 인스턴스 사용

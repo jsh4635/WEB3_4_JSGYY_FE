@@ -9,7 +9,3 @@ export interface User {
   phoneNumber: string;
   profileImage?: string;
 }
-
-export interface UserDetail extends User {
-  isAdmin?: boolean;
-}

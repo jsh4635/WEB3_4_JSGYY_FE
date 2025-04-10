@@ -5,8 +5,6 @@ import { LoginDto } from "@/api/generated/models";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { FaGoogle } from "react-icons/fa";
-import { SiNaver } from "react-icons/si";
 import * as z from "zod";
 
 import Link from "next/link";
@@ -65,7 +63,6 @@ export default function LoginPage() {
       };
 
       const response = await api.login({ loginDto });
-      console.log("응답 정보:", response.status, response.statusText);
 
       // 로그인 성공 시 쿠키가 자동으로 설정됨
       if (response.status === 200) {
@@ -171,31 +168,6 @@ export default function LoginPage() {
             </form>
           </Form>
 
-          <div className="space-y-2">
-            <Button
-              variant="outline"
-              className="w-full flex items-center justify-center gap-2 opacity-50 cursor-not-allowed select-none"
-              disabled
-            >
-              <FaGoogle className="h-5 w-5" />
-              Google로 로그인
-            </Button>
-
-            <Button
-              className="w-full bg-yellow-400 text-black flex items-center justify-center gap-2 opacity-50 cursor-not-allowed select-none"
-              disabled
-            >
-              카카오 로그인
-            </Button>
-
-            <Button
-              className="w-full bg-green-500 text-white flex items-center justify-center gap-2 opacity-50 cursor-not-allowed select-none"
-              disabled
-            >
-              <SiNaver className="h-5 w-5" />
-              네이버 로그인
-            </Button>
-          </div>
           <div className="mt-4 text-center">
             <p className="text-sm text-gray-600">
               아직 계정이 없으신가요?{" "}

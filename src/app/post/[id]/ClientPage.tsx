@@ -39,7 +39,7 @@ export default function ClientPage({ postId }: { postId: number }) {
   const [post, setPost] = useState<PostDetail | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  const { isAdmin, loginMember } = use(LoginMemberContext);
+  const { loginMember } = use(LoginMemberContext);
 
   useEffect(() => {
     const fetchPost = async () => {
@@ -259,14 +259,12 @@ export default function ClientPage({ postId }: { postId: number }) {
             </Button>
           </div>
 
-          {/* 관리자/작성자 기능 */}
-          {(isAdmin || isAuthor) && (
+          {/* 작성자 기능 */}
+          {isAuthor && (
             <div className="flex justify-end gap-3 mt-4">
-              {isAuthor && (
-                <Button variant="outline" asChild>
-                  <Link href={`/post/${post.id}/edit`}>수정하기</Link>
-                </Button>
-              )}
+              <Button variant="outline" asChild>
+                <Link href={`/post/${post.id}/edit`}>수정하기</Link>
+              </Button>
               <Button
                 variant="outline"
                 className="text-red-600 hover:bg-red-50 hover:text-red-700 border-red-200"

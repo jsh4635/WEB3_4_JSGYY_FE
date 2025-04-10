@@ -13,7 +13,7 @@ import Link from "next/link";
 import { useGlobalLoginMember } from "@/stores/auth/loginMember";
 
 import { Button } from "@/components/ui/button";
-import { H2, H3, SmallText, Text } from "@/components/ui/typography";
+import { Text } from "@/components/ui/typography";
 
 import { Plus } from "lucide-react";
 
@@ -50,11 +50,9 @@ function MainPageContent() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <H2 className="mb-6 border-b-0">Bid & Buy 거래 플랫폼</H2>
-
+    <div className="container mx-auto px-4 py-2 flex-1">
       {isLogin && (
-        <div className="flex justify-end mb-6">
+        <div className="flex justify-end mb-2">
           <Button asChild variant="daangn">
             <Link href="/post/create" className="flex items-center gap-2">
               <Plus className="w-5 h-5" />
@@ -67,7 +65,6 @@ function MainPageContent() {
       <div className="flex flex-col md:flex-row gap-6">
         {/* 사이드바 필터 */}
         <div className="md:w-64 flex-shrink-0">
-          <H3 className="mb-4">필터</H3>
           <Filter
             onFilterChange={handleFilterChange}
             className="sticky top-6"
@@ -78,7 +75,6 @@ function MainPageContent() {
         <div className="flex-1">
           {currentItems.length > 0 ? (
             <>
-              <H3 className="mb-4">상품 목록</H3>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                 {currentItems.map((post) => (
                   <Preview key={post.id} post={post} />
@@ -86,7 +82,7 @@ function MainPageContent() {
               </div>
             </>
           ) : (
-            <div className="flex flex-col items-center justify-center h-64 bg-gray-50 rounded-lg border border-gray-200">
+            <div className="flex flex-col items-center justify-center h-64 bg-gray-50 rounded-lg border border-gray-200 min-h-[486px]">
               <Text className="text-gray-500 mb-4">검색 결과가 없습니다</Text>
               <Button variant="outline" onClick={() => handleFilterChange()}>
                 필터 초기화
@@ -150,10 +146,6 @@ function MainPageContent() {
           )}
         </div>
       </div>
-
-      <SmallText className="text-center mt-8 text-muted-foreground">
-        Bid & Buy에서 안전하게 중고 거래를 시작하세요.
-      </SmallText>
     </div>
   );
 }

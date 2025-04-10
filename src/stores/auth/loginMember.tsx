@@ -2,7 +2,7 @@
 
 import { createContext, use, useState } from "react";
 
-import { usePathname, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 
 import client from "@/lib/backend/client";
 
@@ -15,21 +15,17 @@ export const LoginMemberContext = createContext<{
   setLoginMember: (member: Member) => void;
   isLoginMemberPending: boolean;
   isLogin: boolean;
-  isAdmin: boolean;
   logout: (callback: () => void) => void;
   logoutAndHome: () => void;
-  isAdminPage: boolean;
   isUserPage: boolean;
 }>({
   loginMember: createEmptyMember(),
   setLoginMember: () => {},
   isLoginMemberPending: true,
   isLogin: false,
-  isAdmin: false,
   logout: () => {},
   logoutAndHome: () => {},
-  isAdminPage: false,
-  isUserPage: false,
+  isUserPage: true,
 });
 
 export function createEmptyMember(): Member {
@@ -58,7 +54,6 @@ export function createLoginMember(): Member {
 }
 export function useLoginMember() {
   const router = useRouter();
-  const pathname = usePathname();
 
   const [isLoginMemberPending, setLoginMemberPending] = useState(true);
   const [loginMember, _setLoginMember] = useState<Member>(createEmptyMember());
@@ -78,7 +73,6 @@ export function useLoginMember() {
   };
 
   const isLogin = loginMember.id !== 0;
-  const isAdmin = loginMember.id === 2;
 
   const logout = (callback: () => void) => {
     client.get("/api/auth/logout").then(() => {
@@ -91,8 +85,7 @@ export function useLoginMember() {
     logout(() => router.replace("/"));
   };
 
-  const isAdminPage = pathname.startsWith("/adm");
-  const isUserPage = !isAdminPage;
+  const isUserPage = true;
 
   return {
     loginMember,
@@ -100,10 +93,8 @@ export function useLoginMember() {
     isLoginMemberPending,
     setNoLoginMember,
     isLogin,
-    isAdmin,
     logout,
     logoutAndHome,
-    isAdminPage,
     isUserPage,
   };
 }

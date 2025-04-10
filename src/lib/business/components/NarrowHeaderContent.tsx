@@ -17,14 +17,7 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { Text } from "@/components/ui/typography";
 
-import {
-  LogOut,
-  Menu,
-  MonitorCog,
-  NotebookTabs,
-  User,
-  UserRoundSearch,
-} from "lucide-react";
+import { LogOut, Menu, NotebookTabs, User } from "lucide-react";
 
 import LoginPageButton from "./LoginPageButton";
 import Logo from "./Logo";
@@ -36,14 +29,7 @@ export default function NarrowHeaderContent({
 }: {
   className?: string;
 }) {
-  const {
-    isLogin,
-    isAdmin,
-    loginMember,
-    logoutAndHome,
-    isAdminPage,
-    isUserPage,
-  } = useGlobalLoginMember();
+  const { isLogin, loginMember, logoutAndHome } = useGlobalLoginMember();
 
   return (
     <div className={`${className} py-1`}>
@@ -60,75 +46,31 @@ export default function NarrowHeaderContent({
           </DrawerHeader>
           <div className="max-h-[calc(100dvh-150px)] px-2 pb-2 overflow-y-auto">
             <ul>
-              {isUserPage && (
-                <>
-                  {isLogin && (
-                    <li>
-                      <DrawerClose asChild>
-                        <PostWriteButton
-                          className="w-full justify-start"
-                          text
-                        />
-                      </DrawerClose>
-                    </li>
-                  )}
-                  {isLogin && (
-                    <li>
-                      <DrawerClose asChild>
-                        <Button
-                          variant="link"
-                          className="w-full justify-start"
-                          asChild
-                        >
-                          <Link
-                            href="/post/mine"
-                            className="flex items-center gap-2"
-                          >
-                            <NotebookTabs className="h-4 w-4" />
-                            <Text>내글</Text>
-                          </Link>
-                        </Button>
-                      </DrawerClose>
-                    </li>
-                  )}
-                </>
+              {isLogin && (
+                <li>
+                  <DrawerClose asChild>
+                    <PostWriteButton className="w-full justify-start" text />
+                  </DrawerClose>
+                </li>
               )}
-
-              {isAdminPage && (
-                <>
-                  <li>
-                    <DrawerClose asChild>
-                      <Button
-                        variant="link"
-                        className="w-full justify-start"
-                        asChild
+              {isLogin && (
+                <li>
+                  <DrawerClose asChild>
+                    <Button
+                      variant="link"
+                      className="w-full justify-start"
+                      asChild
+                    >
+                      <Link
+                        href="/post/mine"
+                        className="flex items-center gap-2"
                       >
-                        <Link href="/adm" className="flex items-center gap-2">
-                          <MonitorCog className="h-4 w-4" />
-                          <Text>관리자 홈</Text>
-                        </Link>
-                      </Button>
-                    </DrawerClose>
-                  </li>
-
-                  <li>
-                    <DrawerClose asChild>
-                      <Button
-                        variant="link"
-                        className="w-full justify-start"
-                        asChild
-                      >
-                        <Link
-                          href="/adm/member/list"
-                          className="flex items-center gap-2"
-                        >
-                          <UserRoundSearch className="h-4 w-4" />
-                          <Text>회원관리</Text>
-                        </Link>
-                      </Button>
-                    </DrawerClose>
-                  </li>
-                </>
+                        <NotebookTabs className="h-4 w-4" />
+                        <Text>내글</Text>
+                      </Link>
+                    </Button>
+                  </DrawerClose>
+                </li>
               )}
               <li className="py-2">
                 <Separator />
@@ -176,22 +118,6 @@ export default function NarrowHeaderContent({
                   </DrawerClose>
                 </li>
               )}
-              {isAdmin && (
-                <li>
-                  <DrawerClose asChild>
-                    <Button
-                      variant="link"
-                      className="w-full justify-start"
-                      asChild
-                    >
-                      <Link href="/adm" className="flex items-center gap-2">
-                        <MonitorCog className="h-4 w-4" />
-                        <Text>관리자 홈</Text>
-                      </Link>
-                    </Button>
-                  </DrawerClose>
-                </li>
-              )}
               {isLogin && (
                 <li>
                   <DrawerClose asChild>
@@ -211,18 +137,9 @@ export default function NarrowHeaderContent({
         </DrawerContent>
       </Drawer>
 
-      {isUserPage && (
-        <Button variant="link" asChild>
-          <Logo />
-        </Button>
-      )}
-      {isAdminPage && (
-        <Button variant="link" asChild>
-          <Link href="/adm">
-            <MonitorCog />
-          </Link>
-        </Button>
-      )}
+      <Button variant="link" asChild>
+        <Logo />
+      </Button>
       <div className="flex-grow"></div>
       {isLogin && <MeMenuButton />}
     </div>

@@ -12,16 +12,12 @@ export async function middleware(req: NextRequest) {
   const cookieStore = await cookies();
   const accessToken = cookieStore.get("accessToken")?.value;
 
-  const { isLogin, isAccessTokenExpired, isAdmin } =
-    parseAccessToken(accessToken);
+  const { isLogin, isAccessTokenExpired } = parseAccessToken(accessToken);
 
   if (isLogin && isAccessTokenExpired) await refreshTokens(cookieStore);
 
   if (requiresLogin(req.nextUrl.pathname) && !isLogin)
     return createUnauthorizedResponse("로그인 후 이용해주세요.");
-
-  if (requiresAdmin(req.nextUrl.pathname) && !isAdmin)
-    return createForbiddenResponse("관리자로 로그인 후 다시 이용해주세요.");
 
   return NextResponse.next({
     headers: {
@@ -91,27 +87,9 @@ function requiresLogin(pathname: string): boolean {
   // );
 }
 
-// 현재는 사용하지 않음
-// 이유 : 클라이언트 컴포넌트에서 이미 페이지별 접근권한을 체크하고 있음
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-function requiresAdmin(pathname: string): boolean {
-  return false;
-
-  // return pathname.startsWith("/adm");
-}
-
 function createUnauthorizedResponse(msg: string): NextResponse {
   return new NextResponse(msg, {
     status: 401,
-    headers: {
-      "Content-Type": "text/html; charset=utf-8",
-    },
-  });
-}
-
-function createForbiddenResponse(msg: string): NextResponse {
-  return new NextResponse(msg, {
-    status: 403,
     headers: {
       "Content-Type": "text/html; charset=utf-8",
     },

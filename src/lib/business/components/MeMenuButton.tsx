@@ -14,10 +14,10 @@ import {
 import { FallbackImage } from "@/components/ui/image";
 import { Text } from "@/components/ui/typography";
 
-import { LogOut, MonitorCog, User } from "lucide-react";
+import { LogOut, User } from "lucide-react";
 
 export default function MeMenuButton() {
-  const { isAdmin, loginMember, logoutAndHome } = useGlobalLoginMember();
+  const { loginMember, logoutAndHome } = useGlobalLoginMember();
 
   return (
     <DropdownMenu>
@@ -37,27 +37,20 @@ export default function MeMenuButton() {
       <DropdownMenuContent align="end">
         <DropdownMenuItem>
           <Button variant="link" className="w-full justify-start" asChild>
-            <Link href="/member/me" className="flex items-center gap-2">
+            <Link
+              href="/member/me"
+              className="flex items-center gap-2 no-underline hover:no-underline"
+            >
               <User className="h-4 w-4" />
-              <Text>{loginMember.nickname}</Text>
+              <Text>마이 페이지</Text>
             </Link>
           </Button>
         </DropdownMenuItem>
-        {isAdmin && (
-          <DropdownMenuItem>
-            <Button variant="link" className="w-full justify-start" asChild>
-              <Link href="/adm" className="flex items-center gap-2">
-                <MonitorCog className="h-4 w-4" />
-                <Text>관리자 홈</Text>
-              </Link>
-            </Button>
-          </DropdownMenuItem>
-        )}
         <DropdownMenuItem>
           <Button
             variant="link"
             onClick={logoutAndHome}
-            className="flex items-center gap-2"
+            className="flex items-center gap-2 no-underline hover:no-underline"
           >
             <LogOut className="h-4 w-4" />
             <Text>로그아웃</Text>

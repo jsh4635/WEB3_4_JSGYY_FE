@@ -1,25 +1,16 @@
 "use client";
 
+import { api } from "@/api";
+import { CATEGORIES } from "@/constants/categories";
 import { zodResolver } from "@hookform/resolvers/zod";
-import html2canvas from "html2canvas";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import { z } from "zod";
 
-import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 
-import client from "@/lib/backend/client";
+import type { components } from "@/lib/backend/apiV1/schema";
 
-import { components } from "@/lib/backend/apiV1/schema";
-import {
-  getSummaryFromContent,
-  getUplodableInputAccept,
-} from "@/lib/business/utils";
-
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
 import {
   Form,
   FormControl,
@@ -29,266 +20,215 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 
-import { useToast } from "@/hooks/use-toast";
+import { ImagePlus, X } from "lucide-react";
 
-const writeFormSchema = z.object({
-  title: z
-    .string()
-    .trim()
-    .min(1, "제목을 입력해주세요.")
-    .min(2, "제목을 2자 이상이여야 합니다.")
-    .max(50, "제목은 50자 이하여야 합니다."),
-  content: z
-    .string()
-    .trim()
-    .min(1, "내용을 입력해주세요.")
-    .min(2, "내용은 2자 이상이어야 합니다.")
-    .max(10_000_000, "내용은 1,000만자 이하여야 합니다."),
-  published: z.boolean(),
-  listed: z.boolean(),
-  attachment_0: z.array(z.instanceof(File)).optional(),
-});
+import { CreatePostFormData, createPostSchema } from "../../create/schema";
 
-type WriteFormInputs = z.infer<typeof writeFormSchema>;
+type PostWithContentDto = components["schemas"]["PostWithContentDto"];
+type PostGenFileDto = components["schemas"]["PostGenFileDto"];
 
-export default function ClientPage({
-  post: _post,
-}: {
-  post: components["schemas"]["PostWithContentDto"];
-}) {
+interface ClientPageProps {
+  post?: PostWithContentDto;
+}
+
+export default function ClientPage({ post }: ClientPageProps) {
   const router = useRouter();
-  const { toast } = useToast();
+  const params = useParams();
+  const postId = params.id as string;
+  const [images, setImages] = useState<
+    { url: string; file?: File; id?: number }[]
+  >([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const [attachmentInputKey, setAttachmentInputKey] = useState(0);
-  const [post, setPost] = useState(_post);
-
-  useEffect(() => {
-    setPost(_post);
-  }, [_post]);
-
-  useEffect(() => {
-    const needToRefresh = window.sessionStorage.getItem("needToRefresh");
-
-    if (needToRefresh === "true") {
-      window.sessionStorage.removeItem("needToRefresh");
-      router.refresh();
-    }
-  }, [router]);
-
-  const form = useForm<WriteFormInputs>({
-    resolver: zodResolver(writeFormSchema),
+  const form = useForm<CreatePostFormData>({
+    resolver: zodResolver(createPostSchema),
     defaultValues: {
-      title: post.title,
-      content: post.content,
-      published: post.published,
-      listed: post.listed,
+      title: "",
+      category: undefined,
+      price: 0,
+      content: "",
+      place: "",
     },
   });
 
   useEffect(() => {
-    form.reset({
-      title: post.title,
-      content: post.content,
-      published: post.published,
-      listed: post.listed,
-    });
-  }, [form, post]);
+    const fetchPostData = async () => {
+      try {
+        setIsLoading(true);
+        // 서버에서 받은 post 데이터 사용
+        if (post) {
+          // 폼 데이터 설정 (API에는 일부 정보가 없으므로 임의로 추가)
+          const category = "digital"; // 임의 데이터
+          const price = 850000; // 임의 데이터
+          const place = "서울시 강남구"; // 임의 데이터
 
-  const handleThumbnailUpload = async (content: string, postId: number) => {
-    const tempDiv = document.createElement("div");
-    Object.assign(tempDiv.style, {
-      width: "1200px",
-      height: "1200px",
-      position: "absolute",
-      left: "-9999px",
-      whiteSpace: "pre-wrap",
-      wordBreak: "break-word",
-      fontSize: "60px",
-      fontWeight: "500",
-      padding: "0 10px",
-      display: "flex",
-      flexWrap: "wrap",
-      alignItems: "center",
-      justifyContent: "center",
-      color: "black",
-    });
+          form.reset({
+            title: post.title,
+            category: category,
+            price: price,
+            content: post.content,
+            place: place,
+          });
 
-    const summary = getSummaryFromContent(content);
-
-    tempDiv.innerText = summary || content;
-    document.body.appendChild(tempDiv);
-
-    try {
-      const canvas = await html2canvas(tempDiv, {
-        width: 1200,
-        height: 1200,
-        backgroundColor: null,
-      });
-
-      const blob = await new Promise<Blob>((resolve) => {
-        canvas.toBlob((blob) => resolve(blob!), "image/png", 1.0);
-      });
-
-      const file = new File([blob], `${postId}-thumbnail.png`, {
-        type: "image/png",
-        lastModified: Date.now(),
-      });
-
-      const formData = new FormData();
-      formData.append("file", file);
-
-      return await client.put(
-        "/api/v1/posts/{postId}/genFiles/{typeCode}/{fileNo}",
-        {
-          params: {
-            path: {
-              postId,
+          // 여기에서 이미지 데이터도 서버에서 가져와야 함
+          // TODO: 실제 API 연동 시 이미지 데이터 가져오기
+          // 임시 이미지 데이터
+          const mockGenFiles: PostGenFileDto[] = [
+            {
+              id: 1,
+              createDate: new Date().toISOString(),
+              modifyDate: new Date().toISOString(),
+              postId: post.id,
+              fileName: "image1.jpg",
               typeCode: "thumbnail",
+              fileExtTypeCode: "jpg",
+              fileExtType2Code: "image",
+              fileSize: 12345,
               fileNo: 1,
+              fileExt: "jpg",
+              fileDateDir: "20231101",
+              originalFileName: "original_image1.jpg",
+              downloadUrl: "https://via.placeholder.com/800x800?text=이미지1",
+              publicUrl: "https://via.placeholder.com/800x800?text=이미지1",
             },
-            query: {
-              metaStr: "darkInvertible=1",
-            },
-          },
-          body: formData as any, // eslint-disable-line @typescript-eslint/no-explicit-any
-        },
-      );
-    } finally {
-      document.body.removeChild(tempDiv);
-    }
-  };
+          ];
 
-  const handleAttachmentUpload = async (files: File[], postId: number) => {
-    const formData = new FormData();
-    files.forEach((file) => formData.append("files", file));
+          // 이미지 설정
+          setImages(
+            mockGenFiles.map((file) => ({
+              id: file.id,
+              url: file.publicUrl,
+            })),
+          );
+        } else {
+          // 서버에서 데이터를 전달받지 못한 경우 (비정상적인 상황)
+          console.error("서버에서 전달받은 데이터가 없습니다.");
+        }
+      } catch (error) {
+        console.error("게시물 데이터를 불러오는 중 오류 발생:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
-    return await client.post("/api/v1/posts/{postId}/genFiles/{typeCode}", {
-      params: {
-        path: {
-          postId,
-          typeCode: "attachment",
-        },
-      },
-      body: formData as any, // eslint-disable-line @typescript-eslint/no-explicit-any
-    });
-  };
+    fetchPostData();
+  }, [postId, form, post]);
 
-  const onSubmit = async (data: WriteFormInputs) => {
-    // 데이터가 변경되었는지 확인
-    const isPostDataChanged =
-      data.title !== post.title ||
-      data.content !== post.content ||
-      data.published !== post.published ||
-      data.listed !== post.listed;
-
-    const isPostContentChanged = data.content !== post.content;
-
-    if (isPostDataChanged) {
-      const response = await client.put("/api/v1/posts/{id}", {
-        params: {
-          path: {
-            id: post.id,
-          },
-        },
-        body: {
+  const onSubmit = async (data: CreatePostFormData) => {
+    try {
+      api.modifyPost({
+        postId: parseInt(postId),
+        postRequest: {
           title: data.title,
           content: data.content,
-          published: data.published,
-          listed: data.listed,
+          price: data.price,
+          category: data.category,
+          place: data.place,
+          saleStatus: true,
+          auctionStatus: false,
+          auctionRequest: undefined,
         },
       });
 
-      if (response.status !== 200) {
-        toast({
-          title: response.data.msg,
-          variant: "destructive",
-        });
-        return;
-      }
-
-      setPost({
-        ...post,
-        title: data.title,
-        content: data.content,
-        published: data.published,
-        listed: data.listed,
-      });
-
-      toast({
-        title: response.data.msg,
-        action: (
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => router.push(`/post/${post.id}`)}
-          >
-            글 보기
-          </Button>
-        ),
-      });
-    }
-
-    if (isPostContentChanged) {
-      const thumbnailResponse = await handleThumbnailUpload(
-        data.content,
-        post.id,
-      );
-
-      if (thumbnailResponse.status !== 200) {
-        toast({
-          title: thumbnailResponse.data.msg,
-          variant: "destructive",
-        });
-      }
-    }
-
-    if (data.attachment_0) {
-      const uploadResponse = await handleAttachmentUpload(
-        data.attachment_0,
-        post.id,
-      );
-
-      if (uploadResponse.status !== 200) {
-        toast({
-          title: uploadResponse.data.msg,
-          variant: "destructive",
-        });
-        return;
-      }
-
-      // 파일 업로드 성공 후 input 초기화
-      form.reset({
-        ...form.getValues(),
-        attachment_0: undefined,
-      });
-
-      setAttachmentInputKey((prev) => prev + 1);
-
-      toast({
-        title: uploadResponse.data.msg,
-      });
+      // 수정 성공 후 상세 페이지로 이동
+      router.push(`/post/${postId}`);
+    } catch (error) {
+      console.error("Error submitting form:", error);
     }
   };
 
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files) return;
+
+    const newImages = Array.from(files).map((file) => ({
+      url: URL.createObjectURL(file),
+      file,
+    }));
+
+    setImages((prev) => [...prev, ...newImages]);
+    e.target.value = ""; // 입력 초기화
+  };
+
+  const removeImage = (indexToRemove: number) => {
+    setImages((prev) => {
+      const newImages = prev.filter((_, index) => index !== indexToRemove);
+      return newImages;
+    });
+  };
+
+  if (isLoading) {
+    return (
+      <div className="container mx-auto px-4 py-8">데이터를 불러오는 중...</div>
+    );
+  }
+
   return (
-    <div className="container mx-auto px-4">
-      <h1 className="text-2xl font-bold my-4 flex items-center gap-2 justify-center">
-        <div className="flex-1" />
-        <span>{post.id}번 글 수정</span>
-        <div className="flex-1">
-          <Button variant="outline" asChild className="float-right">
-            <Link href={`/post/${post.id}/edit/monaco`}>VS CODE로 편집</Link>
-          </Button>
-        </div>
-      </h1>
+    <div className="container mx-auto px-4 py-8 max-w-[800px]">
+      <h1 className="text-2xl font-bold mb-6">상품 수정</h1>
 
       <Form {...form}>
-        <form
-          onSubmit={form.handleSubmit(onSubmit)}
-          className="flex flex-col gap-4"
-        >
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          {/* 이미지 업로드 */}
+          <div className="space-y-4">
+            <Label htmlFor="images">상품 이미지 (최대 10장)</Label>
+
+            <div className="flex items-center gap-4">
+              <Button
+                type="button"
+                variant="outline"
+                className="w-32 h-32 flex flex-col items-center justify-center gap-2 border-dashed"
+                onClick={() => document.getElementById("images")?.click()}
+                disabled={images.length >= 10}
+              >
+                <ImagePlus className="w-8 h-8" />
+                <span className="text-sm">이미지 추가</span>
+              </Button>
+              <Input
+                id="images"
+                type="file"
+                accept="image/*"
+                multiple
+                className="hidden"
+                onChange={handleImageUpload}
+                disabled={images.length >= 10}
+              />
+            </div>
+
+            {images.length > 0 && (
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mt-4">
+                {images.map((image, index) => (
+                  <div key={index} className="relative group">
+                    <img
+                      src={image.url}
+                      alt={`상품 이미지 ${index + 1}`}
+                      className="w-full aspect-square object-cover rounded-lg"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => removeImage(index)}
+                      className="absolute top-2 right-2 p-1 rounded-full bg-black/50 text-white 
+                        opacity-0 group-hover:opacity-100 transition-opacity"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* 제목 */}
           <FormField
             control={form.control}
             name="title"
@@ -296,94 +236,107 @@ export default function ClientPage({
               <FormItem>
                 <FormLabel>제목</FormLabel>
                 <FormControl>
-                  <Input
-                    {...field}
-                    type="text"
-                    placeholder={post.title}
-                    autoComplete="off"
-                  />
+                  <Input placeholder="상품 제목을 입력하세요" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
             )}
           />
-          <div className="flex gap-4">
-            <label className="flex items-center space-x-2 cursor-pointer">
-              <Checkbox
-                checked={form.watch("published")}
-                onCheckedChange={(checked) =>
-                  form.setValue("published", checked === true)
-                }
-              />
-              <span className="text-sm font-medium leading-none">공개</span>
-            </label>
-            <label className="flex items-center space-x-2 cursor-pointer">
-              <Checkbox
-                checked={form.watch("listed")}
-                onCheckedChange={(checked) =>
-                  form.setValue("listed", checked === true)
-                }
-              />
-              <span className="text-sm font-medium leading-none">검색</span>
-            </label>
-            <Badge variant="outline">작성자 : {post.authorName}</Badge>
-          </div>
+
+          {/* 카테고리 */}
           <FormField
             control={form.control}
-            name="attachment_0"
-            render={({ field: { onChange, ...field } }) => (
+            name="category"
+            render={({ field }) => (
               <FormItem>
-                <FormLabel>
-                  첨부파일(드래그 앤 드롭 가능, 다중 업로드 최대 5개 가능)
-                </FormLabel>
+                <FormLabel>카테고리</FormLabel>
+                <Select
+                  onValueChange={field.onChange}
+                  defaultValue={field.value}
+                >
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="카테고리를 선택하세요" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {CATEGORIES.map((category) => (
+                      <SelectItem key={category.value} value={category.value}>
+                        {category.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          {/* 가격 */}
+          <FormField
+            control={form.control}
+            name="price"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>가격</FormLabel>
                 <FormControl>
                   <Input
-                    key={attachmentInputKey}
-                    type="file"
-                    multiple
-                    accept={getUplodableInputAccept()}
-                    onChange={(e) => {
-                      const files = Array.from(e.target.files || []);
-                      onChange(files);
-                    }}
+                    type="number"
+                    placeholder="가격을 입력하세요"
                     {...field}
-                    value={undefined}
+                    onChange={(e) => field.onChange(Number(e.target.value))}
                   />
                 </FormControl>
                 <FormMessage />
               </FormItem>
             )}
           />
-          <Button variant="outline" asChild>
-            <Link href={`/post/${post.id}/genFile/listForEdit`}>
-              기존 첨부파일 변경/삭제
-            </Link>
-          </Button>
+
+          {/* 거래 장소 */}
+          <FormField
+            control={form.control}
+            name="place"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>거래 장소</FormLabel>
+                <FormControl>
+                  <Input placeholder="거래 희망 장소를 입력하세요" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          {/* 상품 설명 */}
           <FormField
             control={form.control}
             name="content"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>내용</FormLabel>
+                <FormLabel>상품 설명</FormLabel>
                 <FormControl>
                   <Textarea
+                    placeholder="상품에 대한 자세한 설명을 입력하세요"
+                    className="h-32"
                     {...field}
-                    autoFocus
-                    className="h-[calc(100dvh-520px)] min-h-[300px]"
-                    placeholder={post.content}
                   />
                 </FormControl>
                 <FormMessage />
               </FormItem>
             )}
           />
-          <Button
-            type="submit"
-            disabled={form.formState.isSubmitting}
-            className="mt-2"
-          >
-            {form.formState.isSubmitting ? "수정 중..." : "수정"}
-          </Button>
+
+          {/* 버튼 */}
+          <div className="flex gap-4 justify-end">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => router.back()}
+            >
+              취소
+            </Button>
+            <Button type="submit">수정하기</Button>
+          </div>
         </form>
       </Form>
     </div>
