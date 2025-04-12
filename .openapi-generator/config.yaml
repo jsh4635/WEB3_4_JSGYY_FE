@@ -1,0 +1,14 @@
+inputSpec: https://api.app1.springservice.shop/v3/api-docs
+generatorName: typescript-axios
+outputDir: src/api/generated
+apiPackage: api
+modelPackage: models
+additionalProperties:
+  supportsES6: true
+  withInterfaces: true
+  modelPropertyNaming: camelCase
+  enumPropertyNaming: camelCase
+  withSeparateModelsAndApi: true
+  useSingleRequestParameter: true
+  npmName: api-client
+  npmVersion: 1.0.0

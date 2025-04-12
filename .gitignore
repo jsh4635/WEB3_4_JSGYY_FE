@@ -42,4 +42,4 @@ next-env.d.ts
 
 # Generated API client
 src/api/generated/
-.openapi-generator/
+
