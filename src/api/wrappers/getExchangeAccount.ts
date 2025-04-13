@@ -30,7 +30,13 @@ export const getExchangeAccount = async (
 
     // API 응답 구조에 맞게 데이터 가공
     if (response?.data) {
-      const data = response.data as any;
+      const data = response.data as {
+        exchanges?: ExchangeItem[];
+        totalPages?: number;
+        totalElements?: number;
+        hasNext?: boolean;
+        hasPrevious?: boolean;
+      };
       return {
         exchanges: data.exchanges || [],
         totalPages: data.totalPages || 1,

@@ -1,4 +1,4 @@
-import { components } from "../backend/apiV1/schema";
+import { MyDetailsResponse } from "@/api/custom-models/MyDetailsResponse";
 
 export function parseAccessToken(accessToken: string | undefined) {
   let isAccessTokenExpired = true;
@@ -20,20 +20,30 @@ export function parseAccessToken(accessToken: string | undefined) {
   const isLogin =
     typeof accessTokenPayload === "object" && accessTokenPayload !== null;
 
-  const me: components["schemas"]["MemberDto"] | null = isLogin
+  const me: MyDetailsResponse | null = isLogin
     ? {
         id: accessTokenPayload.id,
-        createDate: "",
-        modifyDate: "",
+        name: accessTokenPayload.name,
+        username: accessTokenPayload.username,
+        password: accessTokenPayload.password,
+        password2: accessTokenPayload.password2,
         nickname: accessTokenPayload.nickname,
-        profileImgUrl: "",
+        email: accessTokenPayload.email,
+        phoneNum: accessTokenPayload.phoneNum,
+        role: accessTokenPayload.role,
+        address: accessTokenPayload.address,
       }
     : {
         id: 0,
-        createDate: "",
-        modifyDate: "",
+        name: "",
+        username: "",
+        password: "",
+        password2: "",
         nickname: "",
-        profileImgUrl: "",
+        email: "",
+        phoneNum: "",
+        role: "",
+        address: "",
       };
 
   return { isLogin, isAccessTokenExpired, accessTokenPayload, me };

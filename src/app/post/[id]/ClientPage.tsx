@@ -223,7 +223,7 @@ const createChatRoom = async (userId: number): Promise<number | null> => {
   }
 };
 
-export default function ClientPage({ postId }: { postId: number }) {
+export default function ClientPage({ id }: { id: string }) {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [post, setPost] = useState<PostDetail | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -246,6 +246,9 @@ export default function ClientPage({ postId }: { postId: number }) {
   const router = useRouter();
   const { loginMember } = use(LoginMemberContext);
   const { toast } = useToast();
+
+  // postId 파싱
+  const postId = parseInt(id, 10);
 
   useEffect(() => {
     const fetchPost = async () => {

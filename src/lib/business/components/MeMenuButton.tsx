@@ -25,7 +25,7 @@ export default function MeMenuButton() {
         <Button variant="link">
           <FallbackImage
             className="w-[32px] h-[32px] object-cover rounded-full "
-            src={loginMember.profileImgUrl}
+            src={""}
             alt={loginMember.nickname}
             width={32}
             height={32}
