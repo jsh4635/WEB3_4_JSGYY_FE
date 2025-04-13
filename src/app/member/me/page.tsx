@@ -1,9 +1,13 @@
 "use client";
 
-import { api } from "@/api";
-import { useQuery } from "@tanstack/react-query";
+import { MyDetailsResponse } from "@/api/custom-models/MyDetailsResponse";
+import { getMyDetails } from "@/api/wrappers/getMyDetails";
+import { useEffect, useState } from "react";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+
+import { storeMember } from "@/stores/auth/loginMember";
 
 import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -11,36 +15,38 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { InfoItem } from "@/components/ui/info-section";
 import { Separator } from "@/components/ui/separator";
 
-// 사용자 정보 타입 정의
-interface UserData {
-  profileImgUrl?: string;
-  name?: string;
-  username?: string;
-  nickname?: string;
-  email?: string;
-  createdAt?: string;
-  phoneNumber?: string;
-  region?: string;
-  balance?: number;
-  sellingCount?: number;
-  soldCount?: number;
-  favoritesCount?: number;
-  address?: {
-    postalCode?: string;
-    mainAddress?: string;
-    detailAddress?: string;
-  };
-}
+// API 응답 형식: { "data": { id, name, username, password, password2, nickname, email, phoneNum, role, address }, "message": string }
 
 export default function MyPage() {
-  const { data, isLoading, error } = useQuery({
-    queryKey: ["myDetails"],
-    queryFn: async () => {
-      const response = await api.myDetails();
-      // API 응답에서 데이터 추출 및 타입 단언
-      return response.data as UserData;
-    },
-  });
+  const router = useRouter();
+  const [error, setError] = useState<Error | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [userData, setUserData] = useState<MyDetailsResponse | null>(null);
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        setIsLoading(true);
+
+        // 래퍼 함수 사용하여 데이터 가져오기
+        const myDetails = await getMyDetails();
+
+        // 로컬 스토리지 업데이트
+        if (myDetails.id !== 0) {
+          storeMember(myDetails);
+        }
+
+        setUserData(myDetails);
+      } catch (err) {
+        console.error("사용자 정보를 불러오는 중 오류 발생:", err);
+        setError(err instanceof Error ? err : new Error("알 수 없는 오류"));
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchUserData();
+  }, []);
 
   // 로딩 상태 처리
   if (isLoading) {
@@ -52,7 +58,7 @@ export default function MyPage() {
   }
 
   // 에러 상태 처리
-  if (error || !data) {
+  if (error || !userData) {
     return (
       <div className="container mx-auto py-8 px-4 max-w-5xl">
         <Card className="p-8">
@@ -68,7 +74,7 @@ export default function MyPage() {
     );
   }
 
-  const user = data;
+  const user = userData;
 
   return (
     <div className="container mx-auto py-8 px-4 max-w-5xl">
@@ -82,7 +88,7 @@ export default function MyPage() {
               <Avatar
                 size="lg"
                 className="mx-auto h-24 w-24 mb-4"
-                src={user.profileImgUrl}
+                src="/user.svg"
               />
               <h2 className="text-2xl font-bold text-gray-800">
                 {user.name || "사용자"}
@@ -94,8 +100,16 @@ export default function MyPage() {
 
             <CardContent>
               <div className="flex justify-center space-x-2 mb-6">
-                <Button variant="default">프로필 수정</Button>
-                <Button variant="outline">내 판매글</Button>
+                <Button variant="default" asChild>
+                  <Link
+                    href={`/member/me/edit-profile?nickname=${encodeURIComponent(user.nickname || "")}&phoneNum=${encodeURIComponent(user.phoneNum || "")}&address=${encodeURIComponent(user.address || "")}`}
+                  >
+                    프로필 수정
+                  </Link>
+                </Button>
+                <Button variant="outline" asChild>
+                  <Link href="/member/me/my-posts">내 판매글</Link>
+                </Button>
               </div>
 
               <Separator className="my-4" />
@@ -105,39 +119,13 @@ export default function MyPage() {
                   <h3 className="font-medium text-gray-800 mb-2">
                     보유금 잔액
                   </h3>
-                  <p className="text-2xl font-bold text-primary">
-                    {user.balance?.toLocaleString() || 0}원
-                  </p>
+                  <p className="text-2xl font-bold text-primary">0원</p>
                   <Link
                     href="/credit"
                     className="text-sm text-primary hover:underline mt-2 inline-block"
                   >
                     충전하기 →
                   </Link>
-                </div>
-
-                <div className="rounded-lg p-4 border">
-                  <h3 className="font-medium text-gray-800 mb-2">활동 정보</h3>
-                  <div className="grid grid-cols-3 gap-2 text-center">
-                    <div>
-                      <p className="text-lg font-bold text-gray-800">
-                        {user.sellingCount || 0}
-                      </p>
-                      <p className="text-xs text-gray-500">판매중</p>
-                    </div>
-                    <div>
-                      <p className="text-lg font-bold text-gray-800">
-                        {user.soldCount || 0}
-                      </p>
-                      <p className="text-xs text-gray-500">판매완료</p>
-                    </div>
-                    <div>
-                      <p className="text-lg font-bold text-gray-800">
-                        {user.favoritesCount || 0}
-                      </p>
-                      <p className="text-xs text-gray-500">찜</p>
-                    </div>
-                  </div>
                 </div>
               </div>
             </CardContent>
@@ -154,7 +142,7 @@ export default function MyPage() {
               <InfoItem label="아이디" value={user.username || "-"} />
               <InfoItem label="닉네임" value={user.nickname || "-"} />
               <InfoItem label="이메일" value={user.email || "-"} />
-              <InfoItem label="가입일" value={user.createdAt || "-"} />
+              <InfoItem label="역할" value={user.role || "-"} />
             </CardContent>
           </Card>
 
@@ -164,8 +152,7 @@ export default function MyPage() {
             </CardHeader>
             <CardContent className="grid gap-6">
               <InfoItem label="이름" value={user.name || "-"} />
-              <InfoItem label="전화번호" value={user.phoneNumber || "-"} />
-              <InfoItem label="지역" value={user.region || "-"} />
+              <InfoItem label="전화번호" value={user.phoneNum || "-"} />
             </CardContent>
           </Card>
 
@@ -174,23 +161,7 @@ export default function MyPage() {
               <h2 className="text-xl font-bold text-gray-800">배송지 정보</h2>
             </CardHeader>
             <CardContent className="grid gap-6">
-              <InfoItem
-                label="우편번호"
-                value={user.address?.postalCode || "-"}
-              />
-              <InfoItem
-                label="기본주소"
-                value={user.address?.mainAddress || "-"}
-              />
-              <InfoItem
-                label="상세주소"
-                value={user.address?.detailAddress || "-"}
-              />
-              <div className="flex justify-end">
-                <Button variant="outline" size="sm">
-                  주소 변경
-                </Button>
-              </div>
+              <InfoItem label="주소" value={user.address || "-"} />
             </CardContent>
           </Card>
 
@@ -198,6 +169,18 @@ export default function MyPage() {
             <Button
               variant="outline"
               className="text-red-500 hover:text-red-600 hover:bg-red-50"
+              onClick={async () => {
+                try {
+                  const api = await import("@/api").then(
+                    (module) => module.api,
+                  );
+                  await api.withdrawal({ oneData: { data: "" } });
+                  router.push("/");
+                } catch (err) {
+                  console.error("회원 탈퇴 중 오류 발생:", err);
+                  alert("회원 탈퇴에 실패했습니다.");
+                }
+              }}
             >
               회원탈퇴
             </Button>

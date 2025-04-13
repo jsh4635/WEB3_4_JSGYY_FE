@@ -61,6 +61,24 @@ export default function Preview({ post }: PreviewProps) {
               <SmallText className="text-gray-400">이미지 없음</SmallText>
             </div>
           )}
+
+          {/* 판매 상태 및 경매 상태 배지 */}
+          <div className="absolute top-2 right-2 flex gap-1">
+            <span
+              className={`text-xs px-2 py-1 rounded-full ${
+                postState.saleStatus
+                  ? "bg-green-100 text-green-800"
+                  : "bg-gray-100 text-gray-800"
+              }`}
+            >
+              {postState.saleStatus ? "판매중" : "판매완료"}
+            </span>
+            {postState.auctionStatus && (
+              <span className="text-xs px-2 py-1 rounded-full bg-blue-100 text-blue-800">
+                경매
+              </span>
+            )}
+          </div>
         </div>
 
         <div className="p-3">
