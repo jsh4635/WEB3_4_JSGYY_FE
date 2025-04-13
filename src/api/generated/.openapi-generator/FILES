@@ -1,0 +1,36 @@
+.gitignore
+.npmignore
+README.md
+api.ts
+api/apiapi.ts
+api/home-controller-api.ts
+base.ts
+common.ts
+configuration.ts
+git_push.sh
+index.ts
+models/   dto.ts
+models/  dto.ts
+models/account-dto.ts
+models/alarm-dto.ts
+models/bid-dto.ts
+models/block-member-dto.ts
+models/category-dto.ts
+models/chat-room-list-response-dto.ts
+models/chat-room-request-dto.ts
+models/create-response-dto.ts
+models/deposit-dto.ts
+models/exchange-dto.ts
+models/follow-request-dto.ts
+models/follow-response-dto.ts
+models/index.ts
+models/login-dto.ts
+models/member-dto.ts
+models/message-search-dto.ts
+models/one-data.ts
+models/payment-dto.ts
+models/update-images-request.ts
+models/withdraw-dto.ts
+package.json
+tsconfig.esm.json
+tsconfig.json
