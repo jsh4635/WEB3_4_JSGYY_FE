@@ -27,6 +27,24 @@ export const createPost = async (data: CreatePostRequest) => {
   return response.data;
 };
 
+export const uploadImages = async (postId: number, images: File[]) => {
+  const formData = new FormData();
+  images.forEach((image) => {
+    formData.append("images", image);
+  });
+
+  const response = await client.post<ApiResponse<void>>(
+    `/posts/${postId}/images`,
+    formData,
+    {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    },
+  );
+  return response.data;
+};
+
 export const updatePost = async (postId: number, data: UpdatePostRequest) => {
   const response = await client.put<ApiResponse<void>>(
     `/posts/${postId}`,

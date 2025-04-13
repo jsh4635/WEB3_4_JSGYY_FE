@@ -22,14 +22,42 @@ import {
   Share2,
 } from "lucide-react";
 
+interface ApiResponse {
+  data: PostDetail;
+}
+
 // API를 사용하여 게시글 상세 조회
 const getPostDetail = async (id: number): Promise<PostDetail> => {
   try {
-    const response = await api.getPost({ postId: id });
-    // API 응답을 PostDetail 타입으로 변환
-    return response.data as PostDetail;
+    // API 타입을 명시적으로 지정
+    const response = (await api.getPost({
+      postId: id,
+    })) as unknown as ApiResponse;
+
+    // API 응답이 없는 경우 에러 처리
+    if (!response || !response.data) {
+      throw new Error("API 응답이 없습니다");
+    }
+
+    return response.data;
   } catch (error) {
     console.error("게시글을 불러오는데 실패했습니다.", error);
+    throw error;
+  }
+};
+
+// 좋아요 토글 API 함수
+const toggleLike = async (postId: number, isLiked: boolean): Promise<void> => {
+  try {
+    if (isLiked) {
+      // 좋아요 취소
+      await api.unlikePost({ postId });
+    } else {
+      // 좋아요 추가
+      await api.likePost({ postId });
+    }
+  } catch (error) {
+    console.error("좋아요 처리에 실패했습니다.", error);
     throw error;
   }
 };
@@ -38,6 +66,7 @@ export default function ClientPage({ postId }: { postId: number }) {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [post, setPost] = useState<PostDetail | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [likeLoading, setLikeLoading] = useState(false);
 
   const { loginMember } = use(LoginMemberContext);
 
@@ -56,6 +85,33 @@ export default function ClientPage({ postId }: { postId: number }) {
 
     fetchPost();
   }, [postId]);
+
+  // 좋아요 클릭 핸들러
+  const handleLikeClick = async () => {
+    if (!post || likeLoading) return;
+
+    try {
+      setLikeLoading(true);
+
+      // API 호출
+      await toggleLike(post.id, post.liked || false);
+
+      // UI 상태 업데이트 (단순 +1/-1)
+      setPost((prev) => {
+        if (!prev) return null;
+
+        return {
+          ...prev,
+          liked: !prev.liked,
+          likes: prev.liked ? Math.max(0, prev.likes - 1) : prev.likes + 1,
+        };
+      });
+    } catch (error) {
+      console.error("좋아요 처리에 실패했습니다.", error);
+    } finally {
+      setLikeLoading(false);
+    }
+  };
 
   if (isLoading || !post) {
     return (
@@ -203,10 +259,15 @@ export default function ClientPage({ postId }: { postId: number }) {
           <div className="flex items-center gap-4 mb-6">
             <Button
               variant="ghost"
-              className="flex items-center gap-2 text-gray-700"
+              className={`flex items-center gap-2 ${post.liked ? "text-red-500" : "text-gray-700"}`}
+              onClick={handleLikeClick}
+              disabled={likeLoading || isAuthor}
+              title={isAuthor ? "자신의 게시글은 찜할 수 없습니다" : undefined}
             >
-              <Heart className="w-5 h-5" />
-              <span>찜 {post.likeCount}</span>
+              <Heart
+                className={`w-5 h-5 ${post.liked ? "fill-red-500" : ""}`}
+              />
+              <span>찜 {post.likes}</span>
             </Button>
 
             <Button
@@ -230,7 +291,7 @@ export default function ClientPage({ postId }: { postId: number }) {
           <div className="p-4 bg-gray-50 rounded-lg mb-4">
             <div className="flex items-center gap-3">
               <FallbackImage
-                src={loginMember.profileImgUrl || "/user.svg"}
+                src={"/user.svg"}
                 alt={loginMember.nickname}
                 width={40}
                 height={40}
@@ -244,24 +305,9 @@ export default function ClientPage({ postId }: { postId: number }) {
             </div>
           </div>
 
-          {/* 행동 버튼 */}
-          <div className="flex gap-2 mt-auto">
-            <Button variant="daangnOutline" className="flex-1">
-              <Heart className="w-5 h-5 mr-2" />
-              찜하기
-            </Button>
-
-            <Button variant="daangn" className="flex-1" asChild>
-              <Link href="/chat" className="flex items-center justify-center">
-                <MessageCircle className="w-5 h-5 mr-2" />
-                채팅하기
-              </Link>
-            </Button>
-          </div>
-
-          {/* 작성자 기능 */}
-          {isAuthor && (
-            <div className="flex justify-end gap-3 mt-4">
+          {/* 작성자인 경우 수정/삭제 버튼, 아닌 경우 찜하기/채팅하기 버튼 */}
+          {isAuthor ? (
+            <div className="flex justify-end gap-3 mt-auto">
               <Button variant="outline" asChild>
                 <Link href={`/post/${post.id}/edit`}>수정하기</Link>
               </Button>
@@ -271,6 +317,28 @@ export default function ClientPage({ postId }: { postId: number }) {
                 asChild
               >
                 <Link href={`/post/${post.id}/delete`}>삭제하기</Link>
+              </Button>
+            </div>
+          ) : (
+            <div className="flex gap-2 mt-auto">
+              <Button
+                variant="daangnOutline"
+                className={`flex-1 ${post.liked ? "bg-red-50 text-red-600 border-red-200" : ""}`}
+                onClick={handleLikeClick}
+                disabled={likeLoading}
+                title="찜하기"
+              >
+                <Heart
+                  className={`w-5 h-5 mr-2 ${post.liked ? "fill-red-500" : ""}`}
+                />
+                {post.liked ? "찜 취소" : "찜하기"}
+              </Button>
+
+              <Button variant="daangn" className="flex-1" asChild>
+                <Link href="/chat" className="flex items-center justify-center">
+                  <MessageCircle className="w-5 h-5 mr-2" />
+                  채팅하기
+                </Link>
               </Button>
             </div>
           )}

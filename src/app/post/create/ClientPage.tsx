@@ -1,5 +1,7 @@
 "use client";
 
+import { api } from "@/api";
+import { PostRequest } from "@/api/generated/models/post-request";
 import { CATEGORIES } from "@/constants/categories";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
@@ -34,6 +36,8 @@ import { CreatePostFormData, createPostSchema } from "./schema";
 export default function ClientPage() {
   const router = useRouter();
   const [images, setImages] = useState<{ url: string; file: File }[]>([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const form = useForm<CreatePostFormData>({
     resolver: zodResolver(createPostSchema),
@@ -47,18 +51,94 @@ export default function ClientPage() {
   });
 
   const onSubmit = async (data: CreatePostFormData) => {
-    try {
-      // TODO: API 연동
-      console.log("Form submitted:", {
-        ...data,
-        images: images.map((img) => img.file),
-      });
+    if (isSubmitting) return;
 
-      // 임시로 목록 페이지로 이동
-      router.push("/post/list");
+    try {
+      setIsSubmitting(true);
+      setErrorMessage(null);
+
+      // 게시글 생성을 위한 요청 데이터 준비
+      const postData: PostRequest = {
+        title: data.title,
+        content: data.content,
+        price: data.price,
+        place: data.place,
+        category: data.category || "",
+        saleStatus: true,
+        auctionStatus: false,
+      };
+
+      // 1. OpenAPI Generator로 생성된 API 클라이언트로 게시글 생성 API 호출
+      const response = await api.createPost({ dTO: postData });
+      console.log("게시글 생성 성공:", response);
+
+      // API 응답에서 메시지 추출
+      let responseMessage = "게시글이 성공적으로 등록되었습니다.";
+      try {
+        // axios 응답에서 데이터 추출 시도
+        const responseJson = response.request
+          ? JSON.parse(response.request.responseText || "{}")
+          : {};
+        if (responseJson && responseJson.message) {
+          responseMessage = responseJson.message;
+        }
+      } catch (err) {
+        console.error("메시지 추출 중 오류:", err);
+      }
+
+      // 응답 메시지에서 게시글 ID 추출 (예: "1번 게시글이 작성되었습니다.")
+      const postId = extractPostId(responseMessage);
+      // const postId = 1;
+
+      if (!postId) {
+        setErrorMessage(
+          "게시글 ID를 추출할 수 없습니다. 이미지 업로드를 건너뜁니다.",
+        );
+        return;
+      } else if (images.length > 0) {
+        try {
+          // 이미지 파일을 File 형태로 전달
+          const response = await api.updateImages({
+            postId,
+            updateImagesRequest: {
+              images: images.map((img) => img.file),
+            },
+          });
+
+          if (!response) {
+            throw new Error("이미지 업로드 응답이 없습니다.");
+          }
+
+          console.log("이미지 업로드 성공");
+        } catch (uploadError) {
+          console.error("이미지 업로드 중 오류:", uploadError);
+          setErrorMessage(
+            "이미지 업로드 중 오류가 발생했습니다. 다시 시도해주세요.",
+          );
+          return;
+        }
+      }
+
+      // 성공 메시지 표시
+      // alert(responseMessage);
+
+      // 메인 페이지로 이동
+      router.push("/");
     } catch (error) {
-      console.error("Error submitting form:", error);
+      console.error("게시글 등록 실패:", error);
+      setErrorMessage("게시글 등록 중 오류가 발생했습니다. 다시 시도해주세요.");
+    } finally {
+      setIsSubmitting(false);
     }
+  };
+
+  // 게시글 ID 추출 함수 (예: "1번 게시글이 작성되었습니다." -> 1)
+  const extractPostId = (message: string): number | null => {
+    const match = message.match(/(\d+)번 게시글/);
+    if (match && match[1]) {
+      return parseInt(match[1], 10);
+    }
+    return null;
   };
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -85,6 +165,12 @@ export default function ClientPage() {
     <div className="container mx-auto px-4 py-8 max-w-[800px]">
       <h1 className="text-2xl font-bold mb-6">상품 등록</h1>
 
+      {errorMessage && (
+        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+          {errorMessage}
+        </div>
+      )}
+
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
           {/* 이미지 업로드 */}
@@ -97,7 +183,7 @@ export default function ClientPage() {
                 variant="outline"
                 className="w-32 h-32 flex flex-col items-center justify-center gap-2 border-dashed"
                 onClick={() => document.getElementById("images")?.click()}
-                disabled={images.length >= 10}
+                disabled={images.length >= 10 || isSubmitting}
               >
                 <ImagePlus className="w-8 h-8" />
                 <span className="text-sm">이미지 추가</span>
@@ -109,7 +195,7 @@ export default function ClientPage() {
                 multiple
                 className="hidden"
                 onChange={handleImageUpload}
-                disabled={images.length >= 10}
+                disabled={images.length >= 10 || isSubmitting}
               />
             </div>
 
@@ -127,6 +213,7 @@ export default function ClientPage() {
                       onClick={() => removeImage(index)}
                       className="absolute top-2 right-2 p-1 rounded-full bg-black/50 text-white 
                         opacity-0 group-hover:opacity-100 transition-opacity"
+                      disabled={isSubmitting}
                     >
                       <X className="w-4 h-4" />
                     </button>
@@ -144,7 +231,11 @@ export default function ClientPage() {
               <FormItem>
                 <FormLabel>제목</FormLabel>
                 <FormControl>
-                  <Input placeholder="상품 제목을 입력하세요" {...field} />
+                  <Input
+                    placeholder="상품 제목을 입력하세요"
+                    {...field}
+                    disabled={isSubmitting}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -161,6 +252,7 @@ export default function ClientPage() {
                 <Select
                   onValueChange={field.onChange}
                   defaultValue={field.value}
+                  disabled={isSubmitting}
                 >
                   <FormControl>
                     <SelectTrigger>
@@ -184,15 +276,57 @@ export default function ClientPage() {
           <FormField
             control={form.control}
             name="price"
-            render={({ field }) => (
+            render={({ field: { value, onChange, ...fieldProps } }) => (
               <FormItem>
                 <FormLabel>가격</FormLabel>
                 <FormControl>
                   <Input
                     type="number"
-                    placeholder="가격을 입력하세요"
-                    {...field}
-                    onChange={(e) => field.onChange(Number(e.target.value))}
+                    placeholder="금액을 입력하세요"
+                    value={value === 0 ? "" : value}
+                    onChange={(e) => {
+                      // 빈 문자열이면 0으로, 그렇지 않으면 입력된 숫자로 변환
+                      const inputValue = e.target.value;
+                      if (inputValue === "") {
+                        onChange(0);
+                      } else {
+                        const numValue = Number(inputValue);
+                        // 음수 입력 방지
+                        onChange(numValue < 0 ? 0 : numValue);
+                      }
+                    }}
+                    className="[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                    min="0"
+                    onKeyDown={(e) => {
+                      // 숫자, 화살표, 백스페이스, 탭, Delete 키만 허용
+                      const allowedKeys = [
+                        "0",
+                        "1",
+                        "2",
+                        "3",
+                        "4",
+                        "5",
+                        "6",
+                        "7",
+                        "8",
+                        "9",
+                        "Backspace",
+                        "Tab",
+                        "ArrowLeft",
+                        "ArrowRight",
+                        "ArrowUp",
+                        "ArrowDown",
+                        "Delete",
+                        "Home",
+                        "End",
+                      ];
+
+                      if (!allowedKeys.includes(e.key)) {
+                        e.preventDefault();
+                      }
+                    }}
+                    disabled={isSubmitting}
+                    {...fieldProps}
                   />
                 </FormControl>
                 <FormMessage />
@@ -208,7 +342,11 @@ export default function ClientPage() {
               <FormItem>
                 <FormLabel>거래 장소</FormLabel>
                 <FormControl>
-                  <Input placeholder="거래 희망 장소를 입력하세요" {...field} />
+                  <Input
+                    placeholder="거래 희망 장소를 입력하세요"
+                    {...field}
+                    disabled={isSubmitting}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -227,6 +365,7 @@ export default function ClientPage() {
                     placeholder="상품에 대한 자세한 설명을 입력하세요"
                     className="h-32"
                     {...field}
+                    disabled={isSubmitting}
                   />
                 </FormControl>
                 <FormMessage />
@@ -240,10 +379,13 @@ export default function ClientPage() {
               type="button"
               variant="outline"
               onClick={() => router.back()}
+              disabled={isSubmitting}
             >
               취소
             </Button>
-            <Button type="submit">등록하기</Button>
+            <Button type="submit" disabled={isSubmitting}>
+              {isSubmitting ? "등록 중..." : "등록하기"}
+            </Button>
           </div>
         </form>
       </Form>
