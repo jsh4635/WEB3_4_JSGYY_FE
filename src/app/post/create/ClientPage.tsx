@@ -63,14 +63,27 @@ export default function ClientPage() {
         content: data.content,
         price: data.price,
         place: data.place,
-        category: data.category || "",
+        category: data.category,
         saleStatus: true,
         auctionStatus: false,
+        // TODO: 이거 없으면 동작안해서 일단 넣음
+        auctionRequest: {
+          startedAt: "2025-03-27T10:00:00",
+          closedAt: "2025-04-10T10:00:00",
+        },
       };
 
       // 1. OpenAPI Generator로 생성된 API 클라이언트로 게시글 생성 API 호출
-      const response = await api.createPost({ dTO: postData });
-      console.log("게시글 생성 성공:", response);
+      const response = await api.createPost({
+        postRequest: postData,
+      });
+
+      // const imageResponse = await api.updateImages({
+      //   postId: 1,
+      //   updateImagesRequest: {
+      //     images: images.map((img) => img.file),
+      //   },
+      // });
 
       // API 응답에서 메시지 추출
       let responseMessage = "게시글이 성공적으로 등록되었습니다.";

@@ -1,14 +1,12 @@
 "use client";
 
-import { api } from "@/api";
+import { PostRequest, api } from "@/api";
 import { CATEGORIES } from "@/constants/categories";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 
 import { useParams, useRouter } from "next/navigation";
-
-import type { components } from "@/lib/backend/apiV1/schema";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -34,14 +32,7 @@ import { ImagePlus, X } from "lucide-react";
 
 import { CreatePostFormData, createPostSchema } from "../../create/schema";
 
-type PostWithContentDto = components["schemas"]["PostWithContentDto"];
-type PostGenFileDto = components["schemas"]["PostGenFileDto"];
-
-interface ClientPageProps {
-  post?: PostWithContentDto;
-}
-
-export default function ClientPage({ post }: ClientPageProps) {
+export default function ClientPage() {
   const router = useRouter();
   const params = useParams();
   const postId = params.id as string;
@@ -49,6 +40,39 @@ export default function ClientPage({ post }: ClientPageProps) {
     { url: string; file?: File; id?: number }[]
   >([]);
   const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchPost = async () => {
+      const response = (await api.getPost({
+        postId: parseInt(postId),
+      })) as unknown as {
+        data: PostRequest;
+      };
+      setIsLoading(false);
+
+      if (response.data) {
+        // 폼에 기존 게시글 데이터 설정
+        form.reset({
+          title: response.data.title || "",
+          category: response.data.category || undefined,
+          price: response.data.price || 0,
+          content: response.data.content || "",
+          place: response.data.place || "",
+        });
+        console.log(response.data.category);
+
+        // // 이미지 데이터가 있으면 설정
+        // if (response.data.imageUrls && response.data.imageUrls.length > 0) {
+        //   const postImages = response.data.imageUrls.map((url, index) => ({
+        //     url,
+        //     id: index,
+        //   }));
+        //   setImages(postImages);
+        // }
+      }
+    };
+    fetchPost();
+  }, [postId, form]);
 
   const form = useForm<CreatePostFormData>({
     resolver: zodResolver(createPostSchema),
@@ -60,69 +84,6 @@ export default function ClientPage({ post }: ClientPageProps) {
       place: "",
     },
   });
-
-  useEffect(() => {
-    const fetchPostData = async () => {
-      try {
-        setIsLoading(true);
-        // 서버에서 받은 post 데이터 사용
-        if (post) {
-          // 폼 데이터 설정 (API에는 일부 정보가 없으므로 임의로 추가)
-          const category = "digital"; // 임의 데이터
-          const price = 850000; // 임의 데이터
-          const place = "서울시 강남구"; // 임의 데이터
-
-          form.reset({
-            title: post.title,
-            category: category,
-            price: price,
-            content: post.content,
-            place: place,
-          });
-
-          // 여기에서 이미지 데이터도 서버에서 가져와야 함
-          // TODO: 실제 API 연동 시 이미지 데이터 가져오기
-          // 임시 이미지 데이터
-          const mockGenFiles: PostGenFileDto[] = [
-            {
-              id: 1,
-              createDate: new Date().toISOString(),
-              modifyDate: new Date().toISOString(),
-              postId: post.id,
-              fileName: "image1.jpg",
-              typeCode: "thumbnail",
-              fileExtTypeCode: "jpg",
-              fileExtType2Code: "image",
-              fileSize: 12345,
-              fileNo: 1,
-              fileExt: "jpg",
-              fileDateDir: "20231101",
-              originalFileName: "original_image1.jpg",
-              downloadUrl: "https://via.placeholder.com/800x800?text=이미지1",
-              publicUrl: "https://via.placeholder.com/800x800?text=이미지1",
-            },
-          ];
-
-          // 이미지 설정
-          setImages(
-            mockGenFiles.map((file) => ({
-              id: file.id,
-              url: file.publicUrl,
-            })),
-          );
-        } else {
-          // 서버에서 데이터를 전달받지 못한 경우 (비정상적인 상황)
-          console.error("서버에서 전달받은 데이터가 없습니다.");
-        }
-      } catch (error) {
-        console.error("게시물 데이터를 불러오는 중 오류 발생:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchPostData();
-  }, [postId, form, post]);
 
   const onSubmit = async (data: CreatePostFormData) => {
     try {
