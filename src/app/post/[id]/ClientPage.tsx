@@ -2,6 +2,7 @@
 
 import { api } from "@/api";
 import { PostDetail } from "@/types/post";
+import axios from "axios";
 import { use, useEffect, useState } from "react";
 
 import Link from "next/link";
@@ -33,6 +34,8 @@ import {
   MessageCircle,
   Share2,
   Trash2,
+  UserMinus,
+  UserPlus,
 } from "lucide-react";
 
 interface ApiResponse {
@@ -85,6 +88,74 @@ const deletePost = async (postId: number): Promise<void> => {
   }
 };
 
+// 팔로우 상태 확인 API 함수
+const checkFollowStatus = async (authorUsername: string): Promise<boolean> => {
+  try {
+    // getFollows API를 사용하여 현재 유저의 팔로우 목록을 가져옴
+    const response = await api.getFollows({ page: 0, size: 100 });
+
+    // 응답에 대한 타입 정의
+    interface FollowItem {
+      followingId: number;
+      nickname: string;
+    }
+
+    interface FollowingData {
+      content: FollowItem[];
+    }
+
+    interface FollowResponse {
+      following: FollowingData;
+    }
+
+    // 응답 데이터가 있고 following.content 배열이 있는 경우
+    const responseData = response?.data as unknown as FollowResponse;
+
+    if (
+      responseData?.following?.content &&
+      Array.isArray(responseData.following.content)
+    ) {
+      // 팔로잉 목록에서 작성자와 일치하는 항목이 있는지 확인
+      return responseData.following.content.some(
+        (follow) =>
+          follow.nickname === authorUsername ||
+          follow.followingId.toString() === authorUsername,
+      );
+    }
+
+    return false;
+  } catch (error) {
+    // 404 에러는 팔로우가 없는 경우이므로 무시
+    if (axios.isAxiosError(error) && error.response?.status === 404) {
+      // 404는 팔로우가 없음을 의미
+    } else {
+      console.error("팔로우 상태 확인에 실패했습니다.", error);
+    }
+    return false;
+  }
+};
+
+// 팔로우/언팔로우 API 함수
+const toggleFollow = async (
+  targetId: number,
+  isFollowing: boolean,
+): Promise<void> => {
+  try {
+    const followRequestDto = { followingId: targetId };
+
+    if (isFollowing) {
+      // 이미 팔로우 중이면 언팔로우
+      await api.unFollow({ followRequestDto });
+    } else {
+      // 팔로우하지 않았으면 팔로우
+      await api.createFollow({ followRequestDto });
+    }
+  } catch (error) {
+    console.error("팔로우 처리에 실패했습니다.", error);
+    throw error;
+  }
+};
+
 export default function ClientPage({ postId }: { postId: number }) {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [post, setPost] = useState<PostDetail | null>(null);
@@ -92,6 +163,8 @@ export default function ClientPage({ postId }: { postId: number }) {
   const [likeLoading, setLikeLoading] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [isFollowing, setIsFollowing] = useState(false);
+  const [followLoading, setFollowLoading] = useState(false);
 
   const router = useRouter();
   const { loginMember } = use(LoginMemberContext);
@@ -103,6 +176,15 @@ export default function ClientPage({ postId }: { postId: number }) {
         setIsLoading(true);
         const data = await getPostDetail(postId);
         setPost(data);
+
+        // 게시글 작성자가 아닌 경우에만 팔로우 상태 확인
+        if (data.authorId !== loginMember.id) {
+          // authorId로 팔로우 상태 확인
+          const followStatus = await checkFollowStatus(
+            data.authorId.toString(),
+          );
+          setIsFollowing(followStatus);
+        }
       } catch (error) {
         console.error("게시글을 불러오는데 실패했습니다.", error);
       } finally {
@@ -111,7 +193,7 @@ export default function ClientPage({ postId }: { postId: number }) {
     };
 
     fetchPost();
-  }, [postId]);
+  }, [postId, loginMember.id]);
 
   // 좋아요 클릭 핸들러
   const handleLikeClick = async () => {
@@ -185,6 +267,42 @@ export default function ClientPage({ postId }: { postId: number }) {
       setDeleteDialogOpen(false);
     } finally {
       setDeleteLoading(false);
+    }
+  };
+
+  // 팔로우/언팔로우 클릭 핸들러
+  const handleFollowClick = async () => {
+    if (!post || followLoading) return;
+
+    try {
+      setFollowLoading(true);
+
+      // post.authorId 사용
+      const authorId = post.authorId;
+
+      // API 호출
+      await toggleFollow(authorId, isFollowing);
+
+      // UI 상태 업데이트
+      setIsFollowing((prev) => !prev);
+
+      // 토스트 알림 표시
+      toast({
+        title: isFollowing ? "언팔로우 완료" : "팔로우 완료",
+        description: isFollowing
+          ? "더 이상 해당 사용자를 팔로우하지 않습니다."
+          : "해당 사용자를 팔로우합니다.",
+        variant: "default",
+      });
+    } catch (error) {
+      console.error("팔로우 처리에 실패했습니다.", error);
+      toast({
+        title: "오류 발생",
+        description: "처리 중 문제가 발생했습니다. 다시 시도해주세요.",
+        variant: "destructive",
+      });
+    } finally {
+      setFollowLoading(false);
     }
   };
 
@@ -367,19 +485,57 @@ export default function ClientPage({ postId }: { postId: number }) {
 
             {/* 판매자 정보 */}
             <div className="p-4 bg-gray-50 rounded-lg mb-4">
-              <div className="flex items-center gap-3">
-                <FallbackImage
-                  src={"/user.svg"}
-                  alt={loginMember.nickname}
-                  width={40}
-                  height={40}
-                  className="w-10 h-10 rounded-full border border-gray-200 object-cover"
-                  fallbackSrc="/user.svg"
-                />
-                <div>
-                  <p className="font-medium">{loginMember.nickname}</p>
-                  <p className="text-sm text-gray-500">{post.place}</p>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <FallbackImage
+                    src={"/user.svg"}
+                    alt={loginMember.nickname}
+                    width={40}
+                    height={40}
+                    className="w-10 h-10 rounded-full border border-gray-200 object-cover"
+                    fallbackSrc="/user.svg"
+                  />
+                  <div>
+                    <p className="font-medium">{loginMember.nickname}</p>
+                    <p className="text-sm text-gray-500">{post.place}</p>
+                  </div>
                 </div>
+
+                {/* 작성자가 아닌 경우에만 팔로우/언팔로우 버튼 표시 */}
+                {!isAuthor && (
+                  <Button
+                    variant={isFollowing ? "outline" : "default"}
+                    size="sm"
+                    onClick={handleFollowClick}
+                    disabled={followLoading}
+                    className={
+                      isFollowing
+                        ? "text-red-600 hover:bg-red-50 hover:text-red-700 border-red-200"
+                        : ""
+                    }
+                  >
+                    {followLoading ? (
+                      <span className="flex items-center">
+                        <span className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-primary border-t-transparent"></span>
+                        처리 중...
+                      </span>
+                    ) : (
+                      <span className="flex items-center">
+                        {isFollowing ? (
+                          <>
+                            <UserMinus className="mr-2 h-4 w-4" />
+                            언팔로우
+                          </>
+                        ) : (
+                          <>
+                            <UserPlus className="mr-2 h-4 w-4" />
+                            팔로우
+                          </>
+                        )}
+                      </span>
+                    )}
+                  </Button>
+                )}
               </div>
             </div>
 

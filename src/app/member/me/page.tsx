@@ -99,7 +99,7 @@ export default function MyPage() {
             </CardHeader>
 
             <CardContent>
-              <div className="flex justify-center space-x-2 mb-6">
+              <div className="grid grid-cols-2 gap-2 mb-4">
                 <Button variant="default" asChild>
                   <Link
                     href={`/member/me/edit-profile?nickname=${encodeURIComponent(user.nickname || "")}&phoneNum=${encodeURIComponent(user.phoneNum || "")}&address=${encodeURIComponent(user.address || "")}`}
@@ -111,6 +111,10 @@ export default function MyPage() {
                   <Link href="/member/me/my-posts">내 판매글</Link>
                 </Button>
               </div>
+
+              <Button variant="outline" className="w-full mb-4" asChild>
+                <Link href="/member/me/following">팔로잉 목록</Link>
+              </Button>
 
               <Separator className="my-4" />
 

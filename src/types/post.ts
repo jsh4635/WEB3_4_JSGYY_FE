@@ -21,6 +21,7 @@ export interface PostDetail extends Post {
   auctionStartedAt?: string;
   auctionClosedAt?: string;
   author?: boolean;
+  authorUsername?: string;
 }
 
 // 모의 데이터를 위한 Post 생성 함수
