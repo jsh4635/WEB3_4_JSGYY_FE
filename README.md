@@ -1,5 +1,24 @@
+## dev 서버 실행
+
 ```bash
+# 1번만
+pnpm install
+# 서버가 바뀔 때 마다
+pnpm generate-api
+# 웹서버 실행
 pnpm dev
+```
+
+## build
+
+```bash
+# 1번만
+pnpm install
+# 서버가 바뀔 때 마다
+pnpm generate-api
+# 빌드 파일 생성
+pnpm build
+# 추가로 apache 또는 nginx로 서버를 연결해줘야 함
 ```
 
 ## OpenAPI Generator 사용 방법

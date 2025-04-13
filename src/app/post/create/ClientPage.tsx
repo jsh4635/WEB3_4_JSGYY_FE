@@ -96,13 +96,24 @@ export default function ClientPage() {
       const response = await api.createPost({
         dTO: postData,
       });
+      // FormData 객체 생성
+      // const formData = new FormData();
+
+      // // 이미지 파일들을 FormData에 추가
+      // images.forEach((img) => {
+      //   formData.append(`images`, img.file);
+      // });
 
       // const imageResponse = await api.updateImages({
-      //   postId: 1,
-      //   updateImagesRequest: {
-      //     images: images.map((img) => img.file),
+      //   postId: response.data.postId,
+      //     updateImagesRequest: formData,
       //   },
-      // });
+      //   {
+      //     headers: {
+      //       "Content-Type": "multipart/form-data",
+      //     },
+      //   },
+      // );
 
       // API 응답에서 메시지 추출
       let responseMessage = "게시글이 성공적으로 등록되었습니다.";
