@@ -1,7 +1,9 @@
 "use client";
 
-import { api } from "@/api";
+import { api, reinitializeApi } from "@/api";
+import { setToken } from "@/api/auth";
 import { LoginDto } from "@/api/generated/models";
+import { getMyDetails } from "@/api/wrappers/getMyDetails";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
@@ -10,10 +12,7 @@ import * as z from "zod";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
-import {
-  createLoginMember,
-  useGlobalLoginMember,
-} from "@/stores/auth/loginMember";
+import { useGlobalLoginMember } from "@/stores/auth/loginMember";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -56,7 +55,6 @@ export default function LoginPage() {
     setIsLoading(true);
 
     try {
-      // API 클라이언트를 사용하여 로그인 요청
       const loginDto: LoginDto = {
         username: values.id,
         password: values.password,
@@ -64,10 +62,19 @@ export default function LoginPage() {
 
       const response = await api.login({ loginDto });
 
-      // 로그인 성공 시 쿠키가 자동으로 설정됨
       if (response.status === 200) {
-        // 로그인 멤버 정보 설정
-        setLoginMember(createLoginMember());
+        const accessToken = response.headers.access;
+        if (accessToken) {
+          setToken(accessToken);
+          reinitializeApi();
+        }
+
+        try {
+          const userInfo = await getMyDetails();
+          setLoginMember(userInfo);
+        } catch (error) {
+          console.error("회원정보 조회 오류:", error);
+        }
 
         toast({
           title: "로그인 성공",

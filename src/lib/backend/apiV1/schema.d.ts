@@ -415,14 +415,16 @@ export interface components {
       nickname: string;
     };
     MemberDto: {
-      /** Format: int64 */
       id: number;
-      /** Format: date-time */
-      createDate: string;
-      /** Format: date-time */
-      modifyDate: string;
+      name: string;
+      username: string;
+      password: string;
+      password2: string;
       nickname: string;
-      profileImgUrl: string;
+      email: string;
+      phoneNum: string;
+      role: string;
+      address: string;
     };
     RsDataMemberDto: {
       resultCode: string;

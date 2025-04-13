@@ -50,6 +50,26 @@ export function ClientLayout({
 
   useEffect(() => {
     const fetchMember = () => {
+      // 로컬 스토리지에서 토큰과 멤버 정보 확인
+      if (typeof window !== "undefined") {
+        // 로컬 스토리지에서 저장된 멤버 정보 확인
+        const storedMember = localStorage.getItem("loginMember");
+        console.log("storedMember", storedMember);
+        if (storedMember) {
+          try {
+            // 저장된 멤버 정보가 있으면 파싱하여 사용
+            const memberData = JSON.parse(storedMember);
+            if (memberData && memberData.id !== 0) {
+              setLoginMember(memberData);
+              return;
+            }
+          } catch (error) {
+            console.error("Failed to parse stored member data:", error);
+          }
+        }
+      }
+
+      // 저장된 정보가 없거나 유효하지 않으면 빈 멤버로 초기화
       setLoginMember(createEmptyMember());
     };
 
@@ -73,7 +93,7 @@ export function ClientLayout({
       forcedTheme="light"
       disableTransitionOnChange
     >
-      <LoginMemberContext value={loginMemberContextValue}>
+      <LoginMemberContext.Provider value={loginMemberContextValue}>
         <header className="py-4">
           <NarrowHeaderContent className="flex sm:hidden" />
           <WideHeaderContent className="hidden sm:flex" />
@@ -87,7 +107,7 @@ export function ClientLayout({
             </Link>
           </Button>
         </footer>
-      </LoginMemberContext>
+      </LoginMemberContext.Provider>
     </NextThemesProvider>
   );
 }
