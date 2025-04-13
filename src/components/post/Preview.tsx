@@ -46,7 +46,16 @@ export default function Preview({ post }: PreviewProps) {
         onMouseLeave={() => setIsHovered(false)}
       >
         <div className="relative aspect-square overflow-hidden">
-          {postState.thumbnail ? (
+          <FallbackImage
+            src={postState.thumbnail ?? ""}
+            alt={postState.title}
+            width={300}
+            height={300}
+            className={`w-full h-full object-cover transition-transform duration-300 ${
+              isHovered ? "scale-105" : "scale-100"
+            }`}
+          />
+          {/* {postState.thumbnail ? (
             <FallbackImage
               src={postState.thumbnail}
               alt={postState.title}
@@ -60,7 +69,7 @@ export default function Preview({ post }: PreviewProps) {
             <div className="w-full h-full flex items-center justify-center bg-gray-100">
               <SmallText className="text-gray-400">이미지 없음</SmallText>
             </div>
-          )}
+          )} */}
 
           {/* 판매 상태 및 경매 상태 배지 */}
           <div className="absolute top-2 right-2 flex gap-1">

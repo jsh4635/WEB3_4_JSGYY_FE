@@ -24,6 +24,10 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "cdn.pixabay.com",
       },
+      {
+        protocol: "https",
+        hostname: "picsum.photos",
+      },
     ],
     contentSecurityPolicy: "default-src 'self'; img-src 'self' data: https:;",
     domains: [process.env.NEXT_PUBLIC_API_DOMAIN || ""],
