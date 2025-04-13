@@ -3,6 +3,7 @@
 import { api } from "@/api";
 import { MemberDTO } from "@/api/generated/models";
 import { zodResolver } from "@hookform/resolvers/zod";
+import axios from "axios";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
@@ -89,11 +90,21 @@ export default function SignupPage() {
       router.push("/member/login");
     } catch (error) {
       console.error("회원가입 오류:", error);
-      toast({
-        title: "회원가입 실패",
-        description: "회원가입 중 오류가 발생했습니다.",
-        variant: "destructive",
-      });
+
+      // 오류 응답 처리
+      if (axios.isAxiosError(error)) {
+        toast({
+          title: "회원가입 실패",
+          description: "이미 존재하는 사용자 정보입니다.",
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "회원가입 실패",
+          description: "회원가입 중 오류가 발생했습니다.",
+          variant: "destructive",
+        });
+      }
     } finally {
       setIsLoading(false);
     }

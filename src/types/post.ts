@@ -9,12 +9,19 @@ export interface Post {
   content: string;
   authorId: number;
   place: string;
-  likeCount: number;
+  likes: number;
+  reports?: number;
   chatCount?: number;
+  liked?: boolean;
+  auctionStatus?: boolean;
+  category?: string;
 }
 
 export interface PostDetail extends Post {
-  modifiedAt: string;
+  auctionStartedAt?: string;
+  auctionClosedAt?: string;
+  author?: boolean;
+  authorUsername?: string;
 }
 
 // 모의 데이터를 위한 Post 생성 함수
@@ -30,8 +37,12 @@ export function createMockPost(override?: Partial<Post>): Post {
     content: "이것은 모의 상품 설명입니다.",
     authorId: 1,
     place: "서울시 강남구",
-    likeCount: Math.floor(Math.random() * 50),
+    likes: Math.floor(Math.random() * 50),
+    reports: 0,
     chatCount: Math.floor(Math.random() * 10),
+    liked: false,
+    auctionStatus: false,
+    category: "기타",
     ...override,
   };
 }

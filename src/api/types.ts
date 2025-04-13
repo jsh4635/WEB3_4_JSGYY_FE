@@ -55,6 +55,8 @@ export interface CreatePostRequest {
   content: string;
   price: number;
   place: string;
+  category?: string;
+  saleStatus: boolean;
   auctionStatus: boolean;
   auctionRequest?: AuctionRequest;
 }

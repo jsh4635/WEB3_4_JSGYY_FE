@@ -49,3 +49,26 @@ export const withdrawAccount = async () => {
   const response = await client.delete<ApiResponse<void>>("/member/withdrawal");
   return response.data;
 };
+
+export const getToken = () => {
+  if (typeof window !== "undefined") {
+    return localStorage.getItem("accessToken") || "";
+  }
+  return "";
+};
+
+export const setToken = (token: string) => {
+  if (typeof window !== "undefined") {
+    localStorage.setItem("accessToken", token);
+  }
+};
+
+export const removeToken = () => {
+  if (typeof window !== "undefined") {
+    localStorage.removeItem("accessToken");
+  }
+};
+
+export const isLoggedIn = () => {
+  return !!getToken();
+};

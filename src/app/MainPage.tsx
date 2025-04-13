@@ -6,7 +6,7 @@ import {
   usePostData,
 } from "@/components/post/PostDataProvider";
 import Preview from "@/components/post/Preview";
-import { useCallback, useState } from "react";
+import { useCallback } from "react";
 
 import Link from "next/link";
 
@@ -17,30 +17,23 @@ import { Text } from "@/components/ui/typography";
 
 import { Plus } from "lucide-react";
 
-const ITEMS_PER_PAGE = 20;
-
 function MainPageContent() {
-  const [currentPage] = useState(1);
   const { isLogin } = useGlobalLoginMember();
-  const { filteredPosts, isLoading } = usePostData();
+  const { filteredPosts, isLoading, pageInfo, fetchPage, currentPage } =
+    usePostData();
 
-  const indexOfLastItem = currentPage * ITEMS_PER_PAGE;
-  const indexOfFirstItem = indexOfLastItem - ITEMS_PER_PAGE;
-  const totalPages = Math.ceil(filteredPosts.length / ITEMS_PER_PAGE);
-  const currentItems = filteredPosts.slice(indexOfFirstItem, indexOfLastItem);
+  const handlePageChange = useCallback(
+    (page: number) => {
+      fetchPage(page);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    },
+    [fetchPage],
+  );
 
-  const handlePageChange = useCallback(() => {
-    // 임시로 비활성화된 함수
-    // window.scrollTo({ top: 0, behavior: "smooth" });
-  }, []);
-
-  // useCallback으로 메모이제이션하여 무한 렌더링 방지
   const handleFilterChange = useCallback(() => {
-    // 임시로 비활성화된 함수
-    // 필터 변경시 첫 페이지로 이동
+    // 필터 변경 시 자동으로 첫 페이지로 돌아감 (PostDataProvider에서 처리)
   }, []);
 
-  // 로딩 표시
   if (isLoading) {
     return (
       <div className="flex justify-center items-center min-h-[60vh]">
@@ -63,7 +56,6 @@ function MainPageContent() {
       )}
 
       <div className="flex flex-col md:flex-row gap-6">
-        {/* 사이드바 필터 */}
         <div className="md:w-64 flex-shrink-0">
           <Filter
             onFilterChange={handleFilterChange}
@@ -71,16 +63,13 @@ function MainPageContent() {
           />
         </div>
 
-        {/* 상품 목록 */}
         <div className="flex-1">
-          {currentItems.length > 0 ? (
-            <>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                {currentItems.map((post) => (
-                  <Preview key={post.id} post={post} />
-                ))}
-              </div>
-            </>
+          {filteredPosts.length > 0 ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+              {filteredPosts.map((post) => (
+                <Preview key={post.id} post={post} />
+              ))}
+            </div>
           ) : (
             <div className="flex flex-col items-center justify-center h-64 bg-gray-50 rounded-lg border border-gray-200 min-h-[486px]">
               <Text className="text-gray-500 mb-4">검색 결과가 없습니다</Text>
@@ -90,52 +79,55 @@ function MainPageContent() {
             </div>
           )}
 
-          {/* 페이지네이션 */}
-          {totalPages > 1 && (
+          {pageInfo.totalPages > 1 && (
             <div className="flex justify-center mt-8">
               <div className="flex items-center gap-1">
-                {currentPage > 1 && (
+                {currentPage > 0 && (
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => handlePageChange()}
+                    onClick={() => handlePageChange(currentPage - 1)}
                     className="px-3"
                   >
                     이전
                   </Button>
                 )}
 
-                {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                  // 현재 페이지가 중앙에 오도록 페이지 번호 계산
-                  let pageNum;
-                  if (totalPages <= 5) {
-                    pageNum = i + 1;
-                  } else if (currentPage <= 3) {
-                    pageNum = i + 1;
-                  } else if (currentPage >= totalPages - 2) {
-                    pageNum = totalPages - 4 + i;
-                  } else {
-                    pageNum = currentPage - 2 + i;
-                  }
+                {Array.from(
+                  { length: Math.min(5, pageInfo.totalPages) },
+                  (_, i) => {
+                    let pageNum;
+                    if (pageInfo.totalPages <= 5) {
+                      pageNum = i;
+                    } else if (currentPage < 3) {
+                      pageNum = i;
+                    } else if (currentPage >= pageInfo.totalPages - 3) {
+                      pageNum = pageInfo.totalPages - 5 + i;
+                    } else {
+                      pageNum = currentPage - 2 + i;
+                    }
 
-                  return (
-                    <Button
-                      key={pageNum}
-                      variant={currentPage === pageNum ? "default" : "outline"}
-                      size="sm"
-                      onClick={() => handlePageChange()}
-                      className="px-3"
-                    >
-                      {pageNum}
-                    </Button>
-                  );
-                })}
+                    return (
+                      <Button
+                        key={pageNum}
+                        variant={
+                          currentPage === pageNum ? "default" : "outline"
+                        }
+                        size="sm"
+                        onClick={() => handlePageChange(pageNum)}
+                        className="px-3"
+                      >
+                        {pageNum + 1}
+                      </Button>
+                    );
+                  },
+                )}
 
-                {currentPage < totalPages && (
+                {!pageInfo.last && (
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => handlePageChange()}
+                    onClick={() => handlePageChange(currentPage + 1)}
                     className="px-3"
                   >
                     다음
