@@ -3,7 +3,6 @@
 import { MyPost, MyPostsPageInfo, getMyPosts } from "@/api/wrappers/getMyPosts";
 import { useCallback, useEffect, useState } from "react";
 
-import Image from "next/image";
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
