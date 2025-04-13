@@ -41,11 +41,19 @@ export function FallbackImage({
 }: FallbackImageProps) {
   const [imgSrc, setImgSrc] = useState(src);
 
-  // 컴포넌트가 마운트될 때 한 번만 랜덤 이미지 선택
+  // alt 문자열을 숫자로 변환하여 일관된 인덱스 생성
   const randomFallbackSrc = useMemo(() => {
-    const randomIndex = Math.floor(Math.random() * FALLBACK_IMAGES.length);
-    return FALLBACK_IMAGES[randomIndex];
-  }, []);
+    // alt 문자열에서 숫자 값 추출 (각 문자의 코드 합산)
+    let altSum = 0;
+    if (alt) {
+      for (let i = 0; i < alt.length; i++) {
+        altSum += alt.charCodeAt(i);
+      }
+    }
+    // alt 값을 이용해 이미지 배열 길이로 나눈 나머지를 인덱스로 사용
+    const index = altSum % FALLBACK_IMAGES.length;
+    return FALLBACK_IMAGES[index];
+  }, [alt]);
 
   return (
     <Image

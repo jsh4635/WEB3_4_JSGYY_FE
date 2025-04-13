@@ -1,7 +1,8 @@
 "use client";
 
-import { PostRequest, api } from "@/api";
+import { api } from "@/api";
 import { CATEGORIES } from "@/constants/categories";
+import { PostDetail } from "@/types/post";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -40,6 +41,11 @@ export default function ClientPage() {
     { url: string; file?: File; id?: number }[]
   >([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [auctionInfo, setAuctionInfo] = useState<{
+    isAuction: boolean;
+    auctionStartedAt?: string;
+    auctionClosedAt?: string;
+  }>({ isAuction: false });
 
   const form = useForm<CreatePostFormData>({
     resolver: zodResolver(createPostSchema),
@@ -57,7 +63,7 @@ export default function ClientPage() {
       const response = (await api.getPost({
         postId: parseInt(postId),
       })) as unknown as {
-        data: PostRequest;
+        data: PostDetail;
       };
       setIsLoading(false);
 
@@ -71,6 +77,13 @@ export default function ClientPage() {
           place: response.data.place || "",
         });
         console.log(response.data.category);
+
+        // 경매 정보 설정
+        setAuctionInfo({
+          isAuction: response.data.auctionStatus || false,
+          auctionStartedAt: response.data.auctionStartedAt,
+          auctionClosedAt: response.data.auctionClosedAt,
+        });
 
         // // 이미지 데이터가 있으면 설정
         // if (response.data.imageUrls && response.data.imageUrls.length > 0) {
@@ -96,7 +109,7 @@ export default function ClientPage() {
           category: data.category,
           place: data.place,
           saleStatus: true,
-          auctionStatus: false,
+          auctionStatus: auctionInfo.isAuction,
           auctionRequest: undefined,
         },
       });
@@ -300,6 +313,44 @@ export default function ClientPage() {
           </div>
         </form>
       </Form>
+
+      {/* 경매 정보 (읽기 전용) */}
+      {auctionInfo.isAuction && (
+        <div className="mt-8 space-y-4 rounded-lg border p-4">
+          <h3 className="text-lg font-medium">경매 정보 (수정 불가)</h3>
+
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label>경매 여부</Label>
+              <div className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-muted-foreground">
+                {auctionInfo.isAuction ? "경매 진행중" : "일반 판매"}
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label>경매 시작 시간</Label>
+              <div className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-muted-foreground">
+                {auctionInfo.auctionStartedAt
+                  ? new Date(auctionInfo.auctionStartedAt).toLocaleString(
+                      "ko-KR",
+                    )
+                  : "정보 없음"}
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label>경매 종료 시간</Label>
+              <div className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-muted-foreground">
+                {auctionInfo.auctionClosedAt
+                  ? new Date(auctionInfo.auctionClosedAt).toLocaleString(
+                      "ko-KR",
+                    )
+                  : "정보 없음"}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

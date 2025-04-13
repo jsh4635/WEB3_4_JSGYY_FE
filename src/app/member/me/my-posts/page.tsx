@@ -8,6 +8,7 @@ import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { FallbackImage } from "@/components/ui/image";
 import { SmallText, Text } from "@/components/ui/typography";
 
 // 가격 형식화 함수
@@ -38,24 +39,19 @@ function ProductCard({ post }: { post: MyPost }) {
         onMouseLeave={() => setIsHovered(false)}
       >
         <div className="relative aspect-square overflow-hidden">
-          {post.thumbnail ? (
-            <div className="w-full h-full bg-gray-200">
-              <Image
-                src={post.thumbnail}
-                alt={post.title}
-                width={300}
-                height={300}
-                className={`w-full h-full object-cover transition-transform duration-300 ${
-                  isHovered ? "scale-105" : "scale-100"
-                }`}
-                unoptimized
-              />
-            </div>
-          ) : (
-            <div className="w-full h-full flex items-center justify-center bg-gray-100">
-              <SmallText className="text-gray-400">이미지 없음</SmallText>
-            </div>
-          )}
+          <div className="w-full h-full bg-gray-200">
+            <FallbackImage
+              src={post.thumbnail ?? ""}
+              alt={post.title}
+              width={300}
+              height={300}
+              className={`w-full h-full object-cover transition-transform duration-300 ${
+                isHovered ? "scale-105" : "scale-100"
+              }`}
+              unoptimized
+            />
+          </div>
+
           <div className="absolute top-2 right-2">
             <span
               className={`text-xs px-2 py-1 rounded-full ${status.className}`}

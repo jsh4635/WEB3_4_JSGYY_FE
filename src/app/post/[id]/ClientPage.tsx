@@ -557,6 +557,29 @@ export default function ClientPage({ postId }: { postId: number }) {
               </p>
             )}
 
+            {isAuction && (
+              <div className="flex flex-col gap-1 p-3 bg-amber-50 rounded-md mb-4 text-sm">
+                <div className="flex items-center gap-2">
+                  <Clock className="w-4 h-4 text-amber-600" />
+                  <span className="text-gray-700">
+                    경매 시작:{" "}
+                    {post.auctionStartedAt
+                      ? new Date(post.auctionStartedAt).toLocaleString("ko-KR")
+                      : "정보 없음"}
+                  </span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Clock className="w-4 h-4 text-amber-600" />
+                  <span className="text-gray-700">
+                    경매 종료:{" "}
+                    {post.auctionClosedAt
+                      ? new Date(post.auctionClosedAt).toLocaleString("ko-KR")
+                      : "정보 없음"}
+                  </span>
+                </div>
+              </div>
+            )}
+
             <div className="flex items-center gap-2 text-sm text-gray-500 mb-6">
               <Clock className="w-4 h-4" />
               <span>{getDateHr(post.createdAt)}</span>
