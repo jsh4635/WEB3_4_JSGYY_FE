@@ -94,7 +94,7 @@ export default function ClientPage() {
 
       // 1. OpenAPI Generator로 생성된 API 클라이언트로 게시글 생성 API 호출
       const response = await api.createPost({
-        postRequest: postData,
+        dTO: postData,
       });
 
       // const imageResponse = await api.updateImages({

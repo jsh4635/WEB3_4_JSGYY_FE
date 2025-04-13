@@ -102,7 +102,7 @@ export default function ClientPage() {
     try {
       api.modifyPost({
         postId: parseInt(postId),
-        postRequest: {
+        dTO: {
           title: data.title,
           content: data.content,
           price: data.price,
@@ -110,7 +110,7 @@ export default function ClientPage() {
           place: data.place,
           saleStatus: true,
           auctionStatus: auctionInfo.isAuction,
-          auctionRequest: undefined,
+          // auctionRequest: undefined,
         },
       });
 
@@ -221,6 +221,7 @@ export default function ClientPage() {
           <FormField
             control={form.control}
             name="category"
+            disabled={true}
             render={({ field }) => (
               <FormItem>
                 <FormLabel>카테고리</FormLabel>
@@ -285,6 +286,7 @@ export default function ClientPage() {
           <FormField
             control={form.control}
             name="content"
+            disabled
             render={({ field }) => (
               <FormItem>
                 <FormLabel>상품 설명</FormLabel>

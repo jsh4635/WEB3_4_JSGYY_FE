@@ -136,11 +136,9 @@ export function PostDataProvider({ children }: PostDataProviderProps) {
       }
 
       const response = await api.getPosts({
-        pageable: {
-          page: page,
-          size: 8,
-          sort: ["createdAt,desc"],
-        },
+        page: page,
+        size: 8,
+        sort: "createdAt,desc",
         searchRequest: searchRequest as any,
       });
 
