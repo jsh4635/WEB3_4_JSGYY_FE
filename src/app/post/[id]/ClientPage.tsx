@@ -9,6 +9,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 import { getDateHr } from "@/lib/business/utils";
+import chatSocketService from "@/lib/socket";
 
 import { LoginMemberContext } from "@/stores/auth/loginMember";
 
@@ -158,6 +159,70 @@ const toggleFollow = async (
   }
 };
 
+// 채팅방 응답 인터페이스
+interface ChatRoomResponseData {
+  rooms?: ChatRoomItem[];
+}
+
+interface ChatRoomItem {
+  id: number;
+  title?: string;
+  nickname?: string;
+  lastMessage?: string;
+  unReadCount?: number;
+}
+
+// 채팅방 생성 API 함수
+const createChatRoom = async (userId: number): Promise<number | null> => {
+  try {
+    // 소켓 연결 준비
+    try {
+      if (!chatSocketService.isConnected()) {
+        console.log("게시글: 채팅방 생성을 위해 소켓 연결 시도");
+        await chatSocketService.connect();
+      } else {
+        console.log("게시글: 소켓이 이미 연결되어 있습니다");
+      }
+    } catch (socketError) {
+      console.warn("게시글: 소켓 연결 시도 중 오류 발생:", socketError);
+      // 소켓 연결 실패해도 채팅방 생성은 계속 시도
+    }
+
+    // 채팅방 생성 API 호출
+    const chatRoomRequestDto = { userId };
+    console.log("게시글: 채팅방 생성 요청:", chatRoomRequestDto);
+    await api.createChatroom({ chatRoomRequestDto });
+
+    // 채팅방 목록을 가져와서 가장 최근 생성된 채팅방 ID 찾기
+    console.log("게시글: 생성된 채팅방 ID 조회 중");
+    const roomsResponse = await api.getChatRooms();
+
+    if (roomsResponse?.data) {
+      // 응답이 { rooms: [...] } 형태인지 확인
+      const responseData = roomsResponse.data as ChatRoomResponseData;
+      const roomsData =
+        responseData.rooms || (roomsResponse.data as ChatRoomItem[]);
+
+      if (Array.isArray(roomsData) && roomsData.length > 0) {
+        console.log("게시글: 모든 채팅방:", roomsData);
+
+        // 채팅방 목록이 있다면 마지막 항목의 ID 반환 (가장 최근 생성된 채팅방)
+        const lastRoom = roomsData[roomsData.length - 1];
+        console.log("게시글: 마지막 채팅방:", lastRoom);
+
+        if (lastRoom && lastRoom.id) {
+          return Number(lastRoom.id);
+        }
+      }
+    }
+
+    return null;
+  } catch (error) {
+    console.error("게시글: 채팅방 생성에 실패했습니다.", error);
+    throw error;
+  }
+};
+
 export default function ClientPage({ postId }: { postId: number }) {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [post, setPost] = useState<PostDetail | null>(null);
@@ -167,6 +232,7 @@ export default function ClientPage({ postId }: { postId: number }) {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [isFollowing, setIsFollowing] = useState(false);
   const [followLoading, setFollowLoading] = useState(false);
+  const [chatLoading, setChatLoading] = useState(false);
 
   // 경매 관련 상태 추가
   const [bidDialogOpen, setBidDialogOpen] = useState(false);
@@ -416,6 +482,49 @@ export default function ClientPage({ postId }: { postId: number }) {
       });
     } finally {
       setAwardLoading(false);
+    }
+  };
+
+  // 채팅 버튼 핸들러
+  const handleChatClick = async (event: React.MouseEvent) => {
+    if (!post || chatLoading) {
+      event.preventDefault();
+      return;
+    }
+
+    event.preventDefault();
+
+    try {
+      setChatLoading(true);
+
+      // 게시글 작성자의 ID로 채팅방 생성
+      const chatRoomId = await createChatRoom(post.authorId);
+      console.log("chatRoomId", chatRoomId);
+      if (chatRoomId) {
+        // 생성된 채팅방으로 이동
+        router.push(`/chat/room/${chatRoomId}`);
+
+        toast({
+          title: "채팅방 생성 완료",
+          description: "채팅방으로 이동합니다.",
+          variant: "default",
+        });
+      } else {
+        toast({
+          title: "채팅방 생성 실패",
+          description: "채팅방을 생성할 수 없습니다. 다시 시도해주세요.",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error("채팅방 생성에 실패했습니다.", error);
+      toast({
+        title: "채팅방 생성 실패",
+        description: "채팅방을 생성할 수 없습니다. 다시 시도해주세요.",
+        variant: "destructive",
+      });
+    } finally {
+      setChatLoading(false);
     }
   };
 
@@ -748,7 +857,12 @@ export default function ClientPage({ postId }: { postId: number }) {
                     입찰하기
                   </Button>
                 ) : (
-                  <Button variant="daangn" className="flex-1" asChild>
+                  <Button
+                    variant="daangn"
+                    className="flex-1"
+                    onClick={handleChatClick}
+                    asChild
+                  >
                     <Link
                       href="/chat"
                       className="flex items-center justify-center"
