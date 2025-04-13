@@ -39,15 +39,19 @@ export default function ChatRoomList({
                   <span className="font-semibold truncate">
                     {room.nickname}
                   </span>
-                  <span className="text-xs text-gray-500">
-                    {room.lastTimestamp}
-                  </span>
+                  {room.lastTimestamp && (
+                    <span className="text-xs text-gray-500">
+                      {room.lastTimestamp}
+                    </span>
+                  )}
                 </div>
                 <p className="text-sm text-gray-600 truncate mt-1">
-                  {room.lastMessage}
+                  {room.lastMessage && room.lastMessage !== "0"
+                    ? room.lastMessage
+                    : ""}
                 </p>
               </div>
-              {room.unreadCount && (
+              {room.unreadCount && room.unreadCount > 0 && (
                 <div className="ml-2">
                   <span className="bg-red-500 text-white text-xs rounded-full px-2 py-1">
                     {room.unreadCount}

@@ -54,7 +54,6 @@ export function ClientLayout({
       if (typeof window !== "undefined") {
         // 로컬 스토리지에서 저장된 멤버 정보 확인
         const storedMember = localStorage.getItem("loginMember");
-        console.log("storedMember", storedMember);
         if (storedMember) {
           try {
             // 저장된 멤버 정보가 있으면 파싱하여 사용
