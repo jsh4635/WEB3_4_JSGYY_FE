@@ -22,6 +22,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { FallbackImage } from "@/components/ui/image";
+import { Input } from "@/components/ui/input";
 
 import { useToast } from "@/hooks/use-toast";
 
@@ -29,6 +30,7 @@ import {
   AlertTriangle,
   Bell,
   Clock,
+  Gavel,
   Heart,
   MapPin,
   MessageCircle,
@@ -165,6 +167,15 @@ export default function ClientPage({ postId }: { postId: number }) {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [isFollowing, setIsFollowing] = useState(false);
   const [followLoading, setFollowLoading] = useState(false);
+
+  // 경매 관련 상태 추가
+  const [bidDialogOpen, setBidDialogOpen] = useState(false);
+  const [bidAmount, setBidAmount] = useState<number>(0);
+  const [bidLoading, setBidLoading] = useState(false);
+
+  // 낙찰 관련 상태 추가
+  const [awardDialogOpen, setAwardDialogOpen] = useState(false);
+  const [awardLoading, setAwardLoading] = useState(false);
 
   const router = useRouter();
   const { loginMember } = use(LoginMemberContext);
@@ -306,6 +317,108 @@ export default function ClientPage({ postId }: { postId: number }) {
     }
   };
 
+  // 입찰 금액 변경 핸들러
+  const handleBidAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = parseInt(e.target.value);
+    if (!isNaN(value)) {
+      setBidAmount(value);
+    } else {
+      setBidAmount(0);
+    }
+  };
+
+  // 입찰 제출 핸들러
+  const handleBidSubmit = async () => {
+    if (!post || bidLoading || !bidAmount) return;
+
+    // 현재 입찰가보다 1000원 이상 높아야 함
+    if (bidAmount <= post.price) {
+      toast({
+        title: "입찰 실패",
+        description: "현재 입찰가보다 1000원 이상 높은 금액으로 입찰해주세요.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      setBidLoading(true);
+
+      // 실제 API 호출 대신 모의 응답 처리 (가짜 데이터 업데이트)
+      // 실제 구현 시 API 호출 필요
+
+      // UI 상태 업데이트
+      setPost((prev) => {
+        if (!prev) return null;
+        return {
+          ...prev,
+          price: bidAmount,
+          authorUsername: loginMember.nickname,
+        };
+      });
+
+      // 다이얼로그 닫기
+      setBidDialogOpen(false);
+
+      // 토스트 알림 표시
+      toast({
+        title: "입찰 성공",
+        description: `${bidAmount.toLocaleString()}원으로 입찰하셨습니다.`,
+        variant: "default",
+      });
+    } catch (error) {
+      console.error("입찰에 실패했습니다.", error);
+      toast({
+        title: "입찰 실패",
+        description: "처리 중 문제가 발생했습니다. 다시 시도해주세요.",
+        variant: "destructive",
+      });
+    } finally {
+      setBidLoading(false);
+    }
+  };
+
+  // 입찰 모달 열기 핸들러
+  const handleOpenBidDialog = () => {
+    if (!post) return;
+    setBidAmount(post.price + 1000); // 기본값을 현재 가격 + 1000원으로 설정
+    setBidDialogOpen(true);
+  };
+
+  // 낙찰 처리 핸들러
+  const handleAwardSubmit = async () => {
+    if (!post || awardLoading) return;
+
+    try {
+      setAwardLoading(true);
+
+      // 실제 API 호출 대신 모의 응답 처리 (가짜 데이터 업데이트)
+      // 실제 구현 시 API 호출 필요
+
+      // 다이얼로그 닫기
+      setAwardDialogOpen(false);
+
+      // 토스트 알림 표시
+      toast({
+        title: "낙찰 처리 완료",
+        description: `${post.authorUsername || "입찰자"}님에게 ${post.price.toLocaleString()}원에 낙찰되었습니다.`,
+        variant: "default",
+      });
+
+      // 내 게시글 목록 페이지로 이동
+      router.push("/member/me/my-posts");
+    } catch (error) {
+      console.error("낙찰 처리에 실패했습니다.", error);
+      toast({
+        title: "낙찰 처리 실패",
+        description: "처리 중 문제가 발생했습니다. 다시 시도해주세요.",
+        variant: "destructive",
+      });
+    } finally {
+      setAwardLoading(false);
+    }
+  };
+
   if (isLoading || !post) {
     return (
       <div className="flex justify-center items-center min-h-[60vh]">
@@ -315,6 +428,7 @@ export default function ClientPage({ postId }: { postId: number }) {
   }
 
   const isAuthor = post.authorId === loginMember.id;
+  const isAuction = post.auctionStatus === true;
 
   const handlePrevImage = () => {
     setCurrentImageIndex((prev) =>
@@ -328,6 +442,7 @@ export default function ClientPage({ postId }: { postId: number }) {
     );
   };
 
+  console.log(isAuction, isAuthor);
   return (
     <>
       <main className="container mx-auto px-4 py-8 max-w-5xl">
@@ -430,11 +545,23 @@ export default function ClientPage({ postId }: { postId: number }) {
           <div className="md:w-1/2 flex flex-col">
             <h1 className="text-2xl font-bold text-gray-900 mb-2">
               {post.title}
+              {isAuction && (
+                <span className="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-800">
+                  <Gavel className="w-3 h-3 mr-1" />
+                  경매중
+                </span>
+              )}
             </h1>
 
-            <p className="text-2xl font-semibold text-primary mb-4">
-              {post.price.toLocaleString()}원
+            <p className="text-2xl font-semibold text-primary mb-1">
+              {isAuction ? "현재 입찰가" : ""} {post.price.toLocaleString()}원
             </p>
+
+            {isAuction && post.authorUsername && (
+              <p className="text-sm text-gray-600 mb-4">
+                현재 입찰자: {post.authorUsername}
+              </p>
+            )}
 
             <div className="flex items-center gap-2 text-sm text-gray-500 mb-6">
               <Clock className="w-4 h-4" />
@@ -542,6 +669,19 @@ export default function ClientPage({ postId }: { postId: number }) {
             {/* 작성자인 경우 수정/삭제 버튼, 아닌 경우 찜하기/채팅하기 버튼 */}
             {isAuthor ? (
               <div className="flex justify-end gap-3 mt-auto">
+                {isAuction && (
+                  <Button
+                    variant="default"
+                    className="mr-auto"
+                    onClick={() => setAwardDialogOpen(true)}
+                    disabled={awardLoading}
+                  >
+                    <span className="flex items-center">
+                      <Gavel className="mr-2 h-4 w-4" />
+                      낙찰하기
+                    </span>
+                  </Button>
+                )}
                 <Button variant="outline" asChild>
                   <Link href={`/post/${post.id}/edit`}>수정하기</Link>
                 </Button>
@@ -581,15 +721,26 @@ export default function ClientPage({ postId }: { postId: number }) {
                   )}
                 </Button>
 
-                <Button variant="daangn" className="flex-1" asChild>
-                  <Link
-                    href="/chat"
-                    className="flex items-center justify-center"
+                {isAuction ? (
+                  <Button
+                    variant="daangn"
+                    className="flex-1"
+                    onClick={handleOpenBidDialog}
                   >
-                    <MessageCircle className="w-5 h-5 mr-2" />
-                    채팅하기
-                  </Link>
-                </Button>
+                    <Gavel className="w-5 h-5 mr-2" />
+                    입찰하기
+                  </Button>
+                ) : (
+                  <Button variant="daangn" className="flex-1" asChild>
+                    <Link
+                      href="/chat"
+                      className="flex items-center justify-center"
+                    >
+                      <MessageCircle className="w-5 h-5 mr-2" />
+                      채팅하기
+                    </Link>
+                  </Button>
+                )}
               </div>
             )}
           </div>
@@ -630,6 +781,114 @@ export default function ClientPage({ postId }: { postId: number }) {
                 <>
                   <Trash2 className="h-4 w-4" />
                   삭제하기
+                </>
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* 입찰 다이얼로그 */}
+      <Dialog open={bidDialogOpen} onOpenChange={setBidDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Gavel className="h-5 w-5" />
+              입찰하기
+            </DialogTitle>
+            <DialogDescription className="pt-3">
+              현재 입찰가는 {post?.price?.toLocaleString()}원입니다. 최소{" "}
+              {(post?.price ? post.price + 1000 : 0).toLocaleString()}원
+              이상으로 입찰해주세요.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="my-4">
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <div className="text-sm font-medium">입찰 금액</div>
+                <div className="flex items-center">
+                  <Input
+                    type="number"
+                    value={bidAmount || ""}
+                    onChange={handleBidAmountChange}
+                    min={post?.price ? post.price + 1000 : 1000}
+                    step="1000"
+                    className="flex-1"
+                  />
+                  <span className="ml-2">원</span>
+                </div>
+                {bidAmount < (post?.price ? post.price + 1000 : 0) && (
+                  <p className="text-xs text-red-500">
+                    현재 입찰가보다 1000원 이상 높은 금액으로 입찰해주세요.
+                  </p>
+                )}
+              </div>
+            </div>
+          </div>
+
+          <DialogFooter className="flex justify-end gap-2 sm:justify-end mt-4">
+            <Button variant="outline" onClick={() => setBidDialogOpen(false)}>
+              취소
+            </Button>
+            <Button
+              variant="default"
+              onClick={handleBidSubmit}
+              disabled={
+                bidLoading || bidAmount < (post?.price ? post.price + 1000 : 0)
+              }
+              className="gap-2"
+            >
+              {bidLoading ? (
+                <>
+                  <span className="h-4 w-4 animate-spin rounded-full border-2 border-background border-t-transparent"></span>
+                  처리 중...
+                </>
+              ) : (
+                <>
+                  <Gavel className="h-4 w-4" />
+                  입찰하기
+                </>
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* 낙찰 확인 다이얼로그 */}
+      <Dialog open={awardDialogOpen} onOpenChange={setAwardDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Gavel className="h-5 w-5" />
+              낙찰 확인
+            </DialogTitle>
+            <DialogDescription className="pt-3">
+              {post?.authorUsername || "현재 입찰자"}님에게{" "}
+              {post?.price?.toLocaleString()}원에 낙찰하시겠습니까? 이 작업은
+              취소할 수 없으며, 거래가 완료됩니다.
+            </DialogDescription>
+          </DialogHeader>
+
+          <DialogFooter className="flex justify-end gap-2 sm:justify-end mt-4">
+            <Button variant="outline" onClick={() => setAwardDialogOpen(false)}>
+              취소
+            </Button>
+            <Button
+              variant="default"
+              onClick={handleAwardSubmit}
+              disabled={awardLoading}
+              className="gap-2"
+            >
+              {awardLoading ? (
+                <>
+                  <span className="h-4 w-4 animate-spin rounded-full border-2 border-background border-t-transparent"></span>
+                  처리 중...
+                </>
+              ) : (
+                <>
+                  <Gavel className="h-4 w-4" />
+                  낙찰 확정
                 </>
               )}
             </Button>

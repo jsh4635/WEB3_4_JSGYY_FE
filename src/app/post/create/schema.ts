@@ -23,6 +23,9 @@ export const createPostSchema = z.object({
     .string()
     .min(2, "거래 장소는 최소 2자 이상이어야 합니다")
     .max(100, "거래 장소는 100자를 초과할 수 없습니다"),
+  auctionStatus: z.boolean().default(false),
+  auctionStartedAt: z.string().optional(),
+  auctionClosedAt: z.string().optional(),
 });
 
 export type CreatePostFormData = z.infer<typeof createPostSchema>;

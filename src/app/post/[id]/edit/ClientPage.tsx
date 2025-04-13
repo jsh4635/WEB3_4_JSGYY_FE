@@ -41,6 +41,17 @@ export default function ClientPage() {
   >([]);
   const [isLoading, setIsLoading] = useState(true);
 
+  const form = useForm<CreatePostFormData>({
+    resolver: zodResolver(createPostSchema),
+    defaultValues: {
+      title: "",
+      category: undefined,
+      price: 0,
+      content: "",
+      place: "",
+    },
+  });
+
   useEffect(() => {
     const fetchPost = async () => {
       const response = (await api.getPost({
@@ -73,17 +84,6 @@ export default function ClientPage() {
     };
     fetchPost();
   }, [postId, form]);
-
-  const form = useForm<CreatePostFormData>({
-    resolver: zodResolver(createPostSchema),
-    defaultValues: {
-      title: "",
-      category: undefined,
-      price: 0,
-      content: "",
-      place: "",
-    },
-  });
 
   const onSubmit = async (data: CreatePostFormData) => {
     try {

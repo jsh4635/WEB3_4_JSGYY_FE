@@ -10,6 +10,7 @@ import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Form,
   FormControl,
@@ -39,6 +40,17 @@ export default function ClientPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
+  // 한국 현지 시간으로 설정 (UTC+9)
+  const formatToKST = (date: Date): string => {
+    const offset = 9 * 60; // 한국 시간은 UTC+9
+    const kstTime = new Date(date.getTime() + offset * 60000);
+    return kstTime.toISOString();
+  };
+
+  const currentDate = new Date();
+  const oneDayLater = new Date(currentDate);
+  oneDayLater.setDate(currentDate.getDate() + 1);
+
   const form = useForm<CreatePostFormData>({
     resolver: zodResolver(createPostSchema),
     defaultValues: {
@@ -47,6 +59,9 @@ export default function ClientPage() {
       price: 0,
       content: "",
       place: "",
+      auctionStatus: false,
+      auctionStartedAt: formatToKST(currentDate),
+      auctionClosedAt: formatToKST(oneDayLater),
     },
   });
 
@@ -65,12 +80,16 @@ export default function ClientPage() {
         place: data.place,
         category: data.category,
         saleStatus: true,
-        auctionStatus: false,
-        // TODO: 이거 없으면 동작안해서 일단 넣음
-        auctionRequest: {
-          startedAt: "2025-03-27T10:00:00",
-          closedAt: "2025-04-10T10:00:00",
-        },
+        auctionStatus: data.auctionStatus,
+        auctionRequest: data.auctionStatus
+          ? {
+              startedAt: data.auctionStartedAt || "",
+              closedAt: data.auctionClosedAt || "",
+            }
+          : {
+              startedAt: "2025-03-27T10:00:00",
+              closedAt: "2025-04-10T10:00:00",
+            },
       };
 
       // 1. OpenAPI Generator로 생성된 API 클라이언트로 게시글 생성 API 호출
@@ -385,6 +404,108 @@ export default function ClientPage() {
               </FormItem>
             )}
           />
+
+          {/* 경매 여부 */}
+          <FormField
+            control={form.control}
+            name="auctionStatus"
+            render={({ field }) => (
+              <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                <FormControl>
+                  <Checkbox
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                    disabled={isSubmitting}
+                  />
+                </FormControl>
+                <div className="space-y-1 leading-none">
+                  <FormLabel>경매 여부</FormLabel>
+                  <p className="text-sm text-muted-foreground">
+                    경매로 판매하시려면 체크해주세요
+                  </p>
+                </div>
+              </FormItem>
+            )}
+          />
+
+          {/* 경매 시간 설정 (경매 상태가 true일 때만 표시) */}
+          {form.watch("auctionStatus") && (
+            <div className="space-y-4 rounded-lg border p-4">
+              <h3 className="text-lg font-medium">경매 시간 설정</h3>
+
+              <FormField
+                control={form.control}
+                name="auctionStartedAt"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>경매 시작 시간</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="datetime-local"
+                        onChange={(e) => {
+                          // datetime-local 값을 ISO 문자열로 변환 (한국 시간 기준)
+                          const inputDate = e.target.value;
+                          if (inputDate) {
+                            // 이미 사용자 로컬 시간대로 입력되므로 그대로 ISO 형식으로 변환
+                            const formattedDate = new Date(
+                              inputDate,
+                            ).toISOString();
+                            field.onChange(formattedDate);
+                          } else {
+                            field.onChange("");
+                          }
+                        }}
+                        // ISO 문자열을 datetime-local 형식으로 변환 (로컬 시간대 표시)
+                        value={
+                          field.value
+                            ? new Date(field.value).toISOString().slice(0, 16)
+                            : ""
+                        }
+                        disabled={isSubmitting}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="auctionClosedAt"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>경매 종료 시간</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="datetime-local"
+                        onChange={(e) => {
+                          // datetime-local 값을 ISO 문자열로 변환 (한국 시간 기준)
+                          const inputDate = e.target.value;
+                          if (inputDate) {
+                            // 이미 사용자 로컬 시간대로 입력되므로 그대로 ISO 형식으로 변환
+                            const formattedDate = new Date(
+                              inputDate,
+                            ).toISOString();
+                            field.onChange(formattedDate);
+                          } else {
+                            field.onChange("");
+                          }
+                        }}
+                        // ISO 문자열을 datetime-local 형식으로 변환 (로컬 시간대 표시)
+                        value={
+                          field.value
+                            ? new Date(field.value).toISOString().slice(0, 16)
+                            : ""
+                        }
+                        disabled={isSubmitting}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+          )}
 
           {/* 버튼 */}
           <div className="flex gap-4 justify-end">
