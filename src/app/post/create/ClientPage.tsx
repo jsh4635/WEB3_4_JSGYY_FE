@@ -2,6 +2,7 @@
 
 import { api } from "@/api";
 import { PostRequest } from "@/api/generated/models/post-request";
+import { uploadImages } from "@/api/posts";
 import { CATEGORIES } from "@/constants/categories";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
@@ -97,23 +98,30 @@ export default function ClientPage() {
         dTO: postData,
       });
       // FormData 객체 생성
-      // const formData = new FormData();
+      const formData = new FormData();
 
-      // // 이미지 파일들을 FormData에 추가
-      // images.forEach((img) => {
-      //   formData.append(`images`, img.file);
-      // });
+      // 이미지 파일들을 FormData에 추가
+      images.forEach((img) => {
+        formData.append(`images`, img.file);
+      });
 
-      // const imageResponse = await api.updateImages({
-      //   postId: response.data.postId,
-      //     updateImagesRequest: formData,
-      //   },
-      //   {
-      //     headers: {
-      //       "Content-Type": "multipart/form-data",
-      //     },
-      //   },
-      // );
+      console.log(response);
+
+      // const imageResponse1 = uploadImages(response.data.postId, formData);
+
+      const imageResponse = await api.updateImages(
+        {
+          postId: response.data.postId,
+          images: formData,
+        },
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        },
+      );
+
+      console.log(imageResponse);
 
       // API 응답에서 메시지 추출
       let responseMessage = "게시글이 성공적으로 등록되었습니다.";
@@ -143,7 +151,7 @@ export default function ClientPage() {
           // 이미지 파일을 File 형태로 전달
           const response = await api.updateImages({
             postId,
-            updateImagesRequest: {
+            images: {
               images: images.map((img) => img.file),
             },
           });

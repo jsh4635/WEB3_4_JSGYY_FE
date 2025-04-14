@@ -1,5 +1,6 @@
 "use client";
 
+import { getBalance } from "@/api/payment";
 import { depositAccount } from "@/api/wrappers/depositAccount";
 import { getAccountInfo } from "@/api/wrappers/getAccountInfo";
 import {
@@ -46,6 +47,7 @@ export default function CreditPage() {
   const loadAccountInfo = async () => {
     try {
       setIsLoading(true);
+
       const accountInfo = await getAccountInfo();
       setBalance(accountInfo.money);
       setHasAccount(accountInfo.hasAccount);
@@ -84,17 +86,12 @@ export default function CreditPage() {
   // 충전 처리 함수
   const handleCharge = async (
     amount: number,
-    paymentInfo: { name: string; bank: string; impUid: string },
+    paymentInfo: { impUid: string },
   ) => {
     try {
       setIsPaymentModalOpen(false);
 
-      await depositAccount(
-        amount,
-        paymentInfo.name,
-        paymentInfo.bank,
-        paymentInfo.impUid,
-      );
+      await depositAccount(amount, paymentInfo.impUid);
 
       // 충전 성공 후 잔액과 거래내역 다시 로드
       await loadAccountInfo();
@@ -213,7 +210,7 @@ export default function CreditPage() {
                     금액
                   </th>
                   <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    계좌번호
+                    거래 후 잔액
                   </th>
                 </tr>
               </thead>
@@ -226,20 +223,20 @@ export default function CreditPage() {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                         {item.otherName ||
-                          (item.exchangeType === "입금" ? "충전" : "결제")}
+                          (item.exchangeType === 0 ? "충전" : "결제")}
                       </td>
                       <td
                         className={`px-6 py-4 whitespace-nowrap text-sm text-right ${
-                          item.exchangeType === "입금"
+                          item.exchangeType === 0
                             ? "text-primary"
                             : "text-red-500"
                         }`}
                       >
-                        {item.exchangeType === "입금" ? "+" : "-"}
+                        {item.exchangeType === 0 ? "+" : "-"}
                         {item.price.toLocaleString()}원
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-right">
-                        {item.account || "-"}
+                        {item.totalPrice.toLocaleString()}원
                       </td>
                     </tr>
                   ))

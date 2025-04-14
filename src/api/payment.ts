@@ -44,8 +44,8 @@ export const processPayment = async (data: PaymentRequest) => {
   return response.data;
 };
 
-export const getBalance = async (memberId: number) => {
-  const response = await client.get<{ money: number }>(`/account/${memberId}`);
+export const getBalance = async () => {
+  const response = await client.get<{ money: number }>(`/account/`);
   return response.data;
 };
 

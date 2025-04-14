@@ -11,16 +11,12 @@ import { DepositDTO } from "@/api/generated/models";
  */
 export const depositAccount = async (
   amount: number,
-  name: string,
-  bank: string,
   impUid: string,
 ): Promise<boolean> => {
   try {
     // 충전 요청 DTO 생성
     const depositDTO: DepositDTO = {
       price: amount,
-      name,
-      bank,
       impUid,
     };
 

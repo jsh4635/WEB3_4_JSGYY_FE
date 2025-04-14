@@ -27,9 +27,8 @@ models/index.ts
 models/login-dto.ts
 models/member-dto.ts
 models/message-search-dto.ts
-models/one-data.ts
+models/one-data-dto.ts
 models/payment-dto.ts
-models/update-images-request.ts
 models/withdraw-dto.ts
 package.json
 tsconfig.esm.json

@@ -12,7 +12,7 @@ interface AccountInfo {
  */
 export const getAccountInfo = async (): Promise<AccountInfo> => {
   try {
-    const response = await api.getAccount({ id: 0 });
+    const response = await api.getAccount({});
 
     // API 응답이 있으면 계좌 있음으로 처리
     const data = response?.data as { money: number } | undefined;

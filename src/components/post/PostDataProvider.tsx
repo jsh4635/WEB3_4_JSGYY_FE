@@ -92,7 +92,7 @@ export function PostDataProvider({ children }: PostDataProviderProps) {
       setIsLoading(true);
 
       const searchRequest: SearchRequestDTO = {
-        category: "남성의류",
+        category: undefined,
         minPrice: undefined,
         maxPrice: undefined,
         saleStatus: true,

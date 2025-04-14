@@ -2,7 +2,7 @@ import { api } from "@/api";
 import axios from "axios";
 
 export interface ExchangeItem {
-  exchangeType: "출금" | "입금";
+  exchangeType: number;
   payDate: string;
   price: number;
   account: number;

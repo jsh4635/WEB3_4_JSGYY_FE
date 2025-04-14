@@ -15,22 +15,16 @@
 
 
 /**
- * 충전 DTO
+ * 
  * @export
- * @interface DepositDTO
+ * @interface OneDataDTO
  */
-export interface DepositDTO {
+export interface OneDataDTO {
     /**
-     * 충전 금액
-     * @type {number}
-     * @memberof DepositDTO
-     */
-    'price'?: number;
-     /**
-     * UID
+     * 
      * @type {string}
-     * @memberof DepositDTO
+     * @memberof OneDataDTO
      */
-    'impUid': string;
+    'data': string;
 }
 
