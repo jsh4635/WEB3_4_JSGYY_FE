@@ -154,8 +154,8 @@ export default function ChatRoomPage() {
           // 새로운 메시지를 화면에 추가
           const isMyMessage = Number(socketMessage.memberId) === myMemberId;
           console.log("MyMessage", isMyMessage);
-            console.log("socketMessageId", socketMessage.memberId);
-            console.log("myMemberId", myMemberId);
+          console.log("socketMessageId", socketMessage.memberId);
+          console.log("myMemberId", myMemberId);
           if (!isMyMessage) {
             // 새로운 메시지를 화면에 추가
             const newMessage: ChatMessage = {
@@ -170,12 +170,17 @@ export default function ChatRoomPage() {
               ),
               isMine: Number(socketMessage.member_id) === myMemberId,
             };
-          
+
             setMessages((prev) => [...prev, newMessage]);
-            
           }
-          
-      });
+        });
+
+        await chatSocketService.subscribeToChatRoomList(
+          myMemberId,
+          (chatRoomList) => {
+            console.log("채팅방 목록 수신: ", socketMessage);
+          },
+        );
         console.log(`채팅방: 채팅방 ${roomId} 구독 성공`);
       } catch (error) {
         console.error("채팅방: 채팅방 구독 실패:", error);

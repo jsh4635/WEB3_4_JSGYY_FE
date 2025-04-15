@@ -32,6 +32,13 @@ export interface ChatMessage {
   profile_url?: string;
 }
 
+export interface ChatRoomList {
+  id: string;
+  title: string;
+  nickname: string;
+  lastMessage: string;
+  unReadCount: number;
+}
 // loginMember 인터페이스 정의
 interface LoginMember {
   id: string;
@@ -95,7 +102,7 @@ class ChatSocketService {
       this.cleanupConnection();
 
       // const API_URL = process.env.NEXT_PUBLIC_API_URL;
-      const API_URL = "https://api.app1.springservice.shop";
+      const API_URL = "http://localhost:8080";
       console.log("소켓 연결 주소:", `${API_URL}/ws`);
 
       this.client = new Client({
@@ -240,12 +247,15 @@ class ChatSocketService {
     }
 
     console.log(`채팅방 ${roomId} 구독 시작`);
+    console.log("subscriptions", this.subscriptions);
     // 채팅방 구독
     try {
       this.subscriptions[subKey] = this.client!.subscribe(
         `/sub/chat/room/${roomId}`,
         (message) => {
           try {
+            console.log("채팅방 메시지 수신:", message);
+            console.log("채팅방 메시지:", message.body);
             const receivedMsg = JSON.parse(message.body) as ChatMessage;
             callback(receivedMsg);
           } catch (error) {
@@ -256,6 +266,51 @@ class ChatSocketService {
       console.log(`채팅방 ${roomId} 구독 성공`);
     } catch (error) {
       console.error(`채팅방 ${roomId} 구독 실패:`, error);
+      throw error;
+    }
+  }
+
+  async subscribeToChatRoomList(
+    memberId: string,
+    callback: (message: ChatRoomList) => void,
+  ): Promise<void> {
+    console.log("MemberId :", memberId);
+    // 연결이 없으면 먼저 연결 시도
+    if (!this.isConnected()) {
+      try {
+        console.log("채팅방 구독 전 소켓 연결 시도");
+        await this.connect();
+      } catch (error) {
+        console.error("채팅방 구독을 위한 소켓 연결 실패:", error);
+        throw error;
+      }
+    }
+
+    // 이미 구독 중인 경우 중복 구독 방지
+    const subRoomListKey = `chatroom-${memberId}`;
+    console.log("ListKey", subRoomListKey);
+
+    
+
+    // 채팅방 목록 구독
+    console.log(`채팅방 목록 ${memberId} 구독 시작`);
+    try {
+      this.subscriptions[subRoomListKey] = this.client!.subscribe(
+        `/sub/chat/roomList/${memberId}`,
+        (message) => {
+          try {
+            console.log("채팅방 목록 메시지 수신:", message);
+            const receivedMsg = JSON.parse(message.body) as ChatRoomList;
+            console.log("채팅방 목록 메시지:", receivedMsg);
+            callback(receivedMsg);
+          } catch (error) {
+            console.error("채팅방 목록 메시지 파싱 오류:", error);
+          }
+        },
+      );
+      console.log(`채팅방 목록 ${memberId} 구독 성공`);
+    } catch (error) {
+      console.error(`채팅방 목록 ${memberId} 구독 실패:`, error);
       throw error;
     }
   }
@@ -326,11 +381,11 @@ class ChatSocketService {
       console.log(`API를 통해 채팅방 ${roomId}에 메시지 전송:`, content);
 
       // axios를 사용하여 직접 URL에 요청 보내기
-      const API_URL =
-        process.env.NEXT_PUBLIC_API_URL ||
-        "https://api.app1.springservice.shop";
+      const API_URL = "http://localhost:8080";
       const token =
-        typeof window !== "undefined" ? localStorage.getItem("token") : null;
+        typeof window !== "undefined"
+          ? localStorage.getItem("accessToken")
+          : null;
 
       await axios.post(
         `${API_URL}/pub/chat/message`,

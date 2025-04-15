@@ -28,6 +28,13 @@ interface ChatRoomResponse {
   updateAt?: string;
 }
 
+interface LoginMember {
+  id: number;
+  username?: string;
+  name?: string;
+  [key: string]: string | number | undefined;
+}
+
 interface ChatRoomsResponseData {
   rooms?: ChatRoomResponse[];
 }
@@ -140,13 +147,22 @@ export default function ChatLayout({
   useEffect(() => {
     if (!socketConnected || !selectedRoomId) return;
 
+    const loginMemberStr = localStorage.getItem("loginMember");
+    const loginMember = JSON.parse(loginMemberStr) as LoginMember;
+
     // 채팅방 구독
     console.log(`채팅방 ${selectedRoomId} 구독 시작`);
-    chatSocketService.subscribeToChatRoom(selectedRoomId, (message) => {
-      console.log("새 메시지 수신:", message);
-      // 새 메시지 수신 시 채팅방 목록 새로고침
-      fetchChatRooms();
-    });
+    chatSocketService.subscribeToChatRoom(
+      selectedRoomId,
+      (message) => {
+        console.log("새 메시지 수신:", message);
+        // 새 메시지 수신 시 채팅방 목록 새로고침
+        fetchChatRooms();
+      },
+      (roomListMessage) => {
+        console.log("채팅방 목록 수신:", roomListMessage);
+      },
+    );
 
     // 이전 구독 해제를 위한 클린업
     return () => {
