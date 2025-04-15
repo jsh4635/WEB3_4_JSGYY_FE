@@ -21,6 +21,15 @@ interface Notification {
   timestamp: string;
 }
 
+interface ChatRoom {
+  id: string;
+  title: string;
+  nickname: string;
+  lastMessage: string;
+  lastTimestamp: string;
+  unreadCount?: number;
+}
+
 // 채팅 메시지 인터페이스 정의
 export interface ChatMessage {
   id: string;
@@ -271,8 +280,8 @@ class ChatSocketService {
   }
 
   async subscribeToChatRoomList(
-    memberId: string,
-    callback: (message: ChatRoomList) => void,
+    memberId: Number,
+    callback: (message: ChatRoom[]) => void,
   ): Promise<void> {
     console.log("MemberId :", memberId);
     // 연결이 없으면 먼저 연결 시도
@@ -300,7 +309,7 @@ class ChatSocketService {
         (message) => {
           try {
             console.log("채팅방 목록 메시지 수신:", message);
-            const receivedMsg = JSON.parse(message.body) as ChatRoomList;
+            const receivedMsg = JSON.parse(message.body) as ChatRoom[];
             console.log("채팅방 목록 메시지:", receivedMsg);
             callback(receivedMsg);
           } catch (error) {

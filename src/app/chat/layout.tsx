@@ -12,6 +12,7 @@ import chatSocketService from "@/lib/socket";
 // 채팅방 인터페이스 정의
 interface ChatRoom {
   id: string;
+  title: string;
   nickname: string;
   lastMessage: string;
   lastTimestamp: string;
@@ -84,6 +85,7 @@ export default function ChatLayout({
 
         const rooms = roomsData.map((room: ChatRoomResponse) => ({
           id: String(room.id),
+          title : room.title || "채팅방",
           nickname: room.nickname || room.title || "익명",
           lastMessage: room.lastMessage ? room.lastMessage : "",
           lastTimestamp: "",
@@ -159,11 +161,15 @@ export default function ChatLayout({
         // 새 메시지 수신 시 채팅방 목록 새로고침
         fetchChatRooms();
       },
-      (roomListMessage) => {
-        console.log("채팅방 목록 수신:", roomListMessage);
-      },
     );
 
+    chatSocketService.subscribeToChatRoomList(
+      loginMember.id,
+      (chatRoomList) => {
+        console.log("채팅방 목록 수신: ", chatRoomList);
+        setChatRooms(chatRoomList);
+      },
+    );
     // 이전 구독 해제를 위한 클린업
     return () => {
       if (selectedRoomId) {
@@ -186,6 +192,8 @@ export default function ChatLayout({
       router.push(`/chat/room/${roomId}`);
     }
   };
+
+  
 
   return (
     <div className="flex h-[calc(100vh-108px)] w-full overflow-hidden">

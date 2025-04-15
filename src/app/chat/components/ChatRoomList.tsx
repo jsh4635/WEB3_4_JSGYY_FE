@@ -1,7 +1,10 @@
 "use client";
 
+import { useEffect, useState } from "react";
+
 interface ChatRoom {
   id: string;
+  title: string;
   nickname: string;
   lastMessage: string;
   lastTimestamp: string;
@@ -37,7 +40,7 @@ export default function ChatRoomList({
               <div className="flex-1 min-w-0">
                 <div className="flex justify-between items-center">
                   <span className="font-semibold truncate">
-                    {room.nickname}
+                    {room.title}
                   </span>
                   {room.lastTimestamp && (
                     <span className="text-xs text-gray-500">

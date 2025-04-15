@@ -80,14 +80,14 @@ export default function ChatRoomPage() {
         const messageSearchDTO: MessageSearchDTO = {
           message: "",
           page: 0,
-          size: 50,
+          size: 10,
         };
 
         await api.enterRoom({
           roomId: parseInt(roomId),
           messageSearchDTO,
         });
-
+        
         // 채팅방 정보를 별도로 가져옵니다 (getChatRooms API를 통해)
         const roomsResponse = await api.getChatRooms();
 
@@ -106,6 +106,7 @@ export default function ChatRoomPage() {
           const currentRoom = roomsData.find(
             (room) => String(room.id) === roomId,
           );
+          console.log("currentRoom", currentRoom);
 
           if (currentRoom) {
             setChatRoom(currentRoom);
@@ -152,9 +153,9 @@ export default function ChatRoomPage() {
           }
 
           // 새로운 메시지를 화면에 추가
-          const isMyMessage = Number(socketMessage.memberId) === myMemberId;
+          const isMyMessage = Number(socketMessage.member_id) === myMemberId;
           console.log("MyMessage", isMyMessage);
-          console.log("socketMessageId", socketMessage.memberId);
+          console.log("socketMessageId", socketMessage.member_id);
           console.log("myMemberId", myMemberId);
           if (!isMyMessage) {
             // 새로운 메시지를 화면에 추가
@@ -174,13 +175,6 @@ export default function ChatRoomPage() {
             setMessages((prev) => [...prev, newMessage]);
           }
         });
-
-        await chatSocketService.subscribeToChatRoomList(
-          myMemberId,
-          (chatRoomList) => {
-            console.log("채팅방 목록 수신: ", socketMessage);
-          },
-        );
         console.log(`채팅방: 채팅방 ${roomId} 구독 성공`);
       } catch (error) {
         console.error("채팅방: 채팅방 구독 실패:", error);
