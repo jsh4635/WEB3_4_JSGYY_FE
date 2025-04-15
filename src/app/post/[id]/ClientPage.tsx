@@ -258,6 +258,8 @@ export default function ClientPage({ id }: { id: string }) {
         const data = await getPostDetail(postId);
         setPost(data);
 
+        console.log(data);
+
         // 게시글 작성자가 아닌 경우에만 팔로우 상태 확인
         if (data.authorId !== loginMember.id) {
           // authorId로 팔로우 상태 확인
@@ -414,8 +416,13 @@ export default function ClientPage({ id }: { id: string }) {
     try {
       setBidLoading(true);
 
+      const bidDTO = {
+        price: bidAmount,
+      };
+
       // 실제 API 호출 대신 모의 응답 처리 (가짜 데이터 업데이트)
       // 실제 구현 시 API 호출 필요
+      const bidResponse = api.bidPrice({ postId, bidDTO });
 
       // UI 상태 업데이트
       setPost((prev) => {
@@ -451,6 +458,7 @@ export default function ClientPage({ id }: { id: string }) {
   // 입찰 모달 열기 핸들러
   const handleOpenBidDialog = () => {
     if (!post) return;
+
     setBidAmount(post.price + 1000); // 기본값을 현재 가격 + 1000원으로 설정
     setBidDialogOpen(true);
   };

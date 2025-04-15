@@ -694,8 +694,6 @@ export const APIApiAxiosParamCreator = function (configuration?: Configuration) 
          * @throws {RequiredError}
          */
         getAccount: async (UNKNOWN_PARAMETER_NAME: any, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'UNKNOWN_PARAMETER_NAME' is not null or undefined
-            assertParamExists('getAccount', 'UNKNOWN_PARAMETER_NAME', UNKNOWN_PARAMETER_NAME)
             const localVarPath = `/api/account`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -848,8 +846,6 @@ export const APIApiAxiosParamCreator = function (configuration?: Configuration) 
          * @throws {RequiredError}
          */
         getExchangeAccount: async (UNKNOWN_PARAMETER_NAME: any, type: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'UNKNOWN_PARAMETER_NAME' is not null or undefined
-            assertParamExists('getExchangeAccount', 'UNKNOWN_PARAMETER_NAME', UNKNOWN_PARAMETER_NAME)
             // verify required parameter 'type' is not null or undefined
             assertParamExists('getExchangeAccount', 'type', type)
             const localVarPath = `/api/account/exchange`;
