@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import Image, { ImageProps } from "next/image";
 
@@ -40,6 +40,10 @@ export function FallbackImage({
   ...props
 }: FallbackImageProps) {
   const [imgSrc, setImgSrc] = useState(src);
+
+  useEffect(() => {
+    setImgSrc(src);
+  }, [src]);
 
   // alt 문자열을 숫자로 변환하여 일관된 인덱스 생성
   const randomFallbackSrc = useMemo(() => {
