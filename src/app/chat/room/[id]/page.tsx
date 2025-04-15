@@ -153,23 +153,23 @@ export default function ChatRoomPage() {
           }
 
           // 새로운 메시지를 화면에 추가
-          const isMyMessage = Number(socketMessage.member_id) === myMemberId;
+          const isMyMessage = Number(socketMessage.memberId) === myMemberId;
           console.log("MyMessage", isMyMessage);
-          console.log("socketMessageId", socketMessage.member_id);
+          console.log("socketMessageId", socketMessage.memberId);
           console.log("myMemberId", myMemberId);
           if (!isMyMessage) {
             // 새로운 메시지를 화면에 추가
             const newMessage: ChatMessage = {
               id: String(socketMessage.id || Date.now()),
               sender:
-                Number(socketMessage.member_id) === myMemberId
+                Number(socketMessage.memberId) === myMemberId
                   ? "나"
                   : chatRoom?.nickname || "익명",
               message: socketMessage.content || "",
               timestamp: formatTimestamp(
                 socketMessage.timestamp || new Date().toISOString(),
               ),
-              isMine: Number(socketMessage.member_id) === myMemberId,
+              isMine: Number(socketMessage.memberId) === myMemberId,
             };
 
             setMessages((prev) => [...prev, newMessage]);

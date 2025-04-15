@@ -34,7 +34,7 @@ interface ChatRoom {
 export interface ChatMessage {
   id: string;
   content: string;
-  member_id: string;
+  memberId: string;
   chatroom_id: string;
   timestamp: string;
   image_url?: string;
