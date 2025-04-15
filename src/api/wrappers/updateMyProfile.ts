@@ -1,5 +1,7 @@
 import { api } from "@/api";
-import { OneData } from "@/api/generated/models";
+import { OneDataDTO as OneData } from "@/api/generated/models";
+
+import { APIApiModifyMyDetailsRequest } from "../generated";
 
 interface UserProfileData {
   nickname?: string;
@@ -22,7 +24,7 @@ export const updateMyProfile = async (data: UserProfileData): Promise<void> => {
         api.modifyMyDetails({
           category: "nickname",
           oneData: nicknameData,
-        }),
+        } as unknown as APIApiModifyMyDetailsRequest),
       );
     }
 
@@ -32,7 +34,7 @@ export const updateMyProfile = async (data: UserProfileData): Promise<void> => {
         api.modifyMyDetails({
           category: "phoneNum",
           oneData: phoneNumData,
-        }),
+        } as unknown as APIApiModifyMyDetailsRequest),
       );
     }
 
@@ -42,7 +44,7 @@ export const updateMyProfile = async (data: UserProfileData): Promise<void> => {
         api.modifyMyDetails({
           category: "address",
           oneData: addressData,
-        }),
+        } as unknown as APIApiModifyMyDetailsRequest),
       );
     }
 

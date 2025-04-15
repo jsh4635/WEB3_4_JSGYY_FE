@@ -1,6 +1,8 @@
 "use client";
 
 import { api } from "@/api";
+import { APIApiUpdateImagesRequest } from "@/api/generated";
+import { PostRequest } from "@/api/generated/models/post-request";
 import { CATEGORIES } from "@/constants/categories";
 import { PostDetail } from "@/types/post";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -125,8 +127,7 @@ export default function ClientPage() {
           place: data.place,
           saleStatus: true,
           auctionStatus: auctionInfo.isAuction,
-          // auctionRequest: undefined,
-        },
+        } as PostRequest,
       });
 
       // FormData 객체 생성
@@ -141,7 +142,7 @@ export default function ClientPage() {
         {
           postId: parseInt(postId),
           images: formData,
-        },
+        } as unknown as APIApiUpdateImagesRequest,
         {
           headers: {
             "Content-Type": "multipart/form-data",
@@ -238,7 +239,7 @@ export default function ClientPage() {
                 {images.map((image, index) => (
                   <div key={index} className="relative group">
                     <FallbackImage
-                      src={image.url.url}
+                      src={((image as any).url as any).url}
                       alt={`상품 이미지 ${index + 1}`}
                       width={300}
                       height={300}
@@ -246,7 +247,7 @@ export default function ClientPage() {
                     />
                     <button
                       type="button"
-                      onClick={() => removeImage(index, image.url.id)}
+                      onClick={() => removeImage(index, (image as any).url.id)}
                       className="absolute top-2 right-2 p-1 rounded-full bg-black/50 text-white 
                         opacity-0 group-hover:opacity-100 transition-opacity"
                     >

@@ -572,7 +572,7 @@ export default function ClientPage({ id }: { id: string }) {
             <div className="relative rounded-lg overflow-hidden bg-gray-100 aspect-square">
               <>
                 <FallbackImage
-                  src={post.images[currentImageIndex].url}
+                  src={(post.images[currentImageIndex] as any).url}
                   alt={post.title}
                   width={600}
                   height={600}
@@ -643,7 +643,7 @@ export default function ClientPage({ id }: { id: string }) {
                     className={`block w-16 h-16 rounded-md overflow-hidden flex-shrink-0 border-2 ${index === currentImageIndex ? "border-primary" : "border-transparent"}`}
                   >
                     <FallbackImage
-                      src={image.url}
+                      src={(image as any).url}
                       alt={`썸네일 ${index + 1}`}
                       width={80}
                       height={80}

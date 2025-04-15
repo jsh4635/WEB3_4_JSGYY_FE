@@ -1,6 +1,8 @@
 import { api } from "@/api";
 import axios from "axios";
 
+import { APIApiGetAccountRequest } from "../generated";
+
 interface AccountInfo {
   money: number;
   hasAccount: boolean;
@@ -12,10 +14,10 @@ interface AccountInfo {
  */
 export const getAccountInfo = async (): Promise<AccountInfo> => {
   try {
-    const response = await api.getAccount({});
+    const response = await api.getAccount({} as APIApiGetAccountRequest);
 
     // API 응답이 있으면 계좌 있음으로 처리
-    const data = response?.data as { money: number } | undefined;
+    const data = response?.data as unknown as { money: number } | undefined;
     console.log("data", data);
 
     if (data) {
