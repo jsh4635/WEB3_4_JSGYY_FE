@@ -15,6 +15,7 @@ export interface Post {
   liked?: boolean;
   auctionStatus?: boolean;
   category?: string;
+  authorNickname?: string;
 }
 
 export interface PostDetail extends Post {
@@ -43,6 +44,7 @@ export function createMockPost(override?: Partial<Post>): Post {
     liked: false,
     auctionStatus: false,
     category: "기타",
+    authorNickname: "닉네임",
     ...override,
   };
 }

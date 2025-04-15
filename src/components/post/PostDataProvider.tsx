@@ -95,7 +95,7 @@ export function PostDataProvider({ children }: PostDataProviderProps) {
         category: undefined,
         minPrice: undefined,
         maxPrice: undefined,
-        saleStatus: true,
+        saleStatus: undefined,
         keyword: "",
         place: "",
       };

@@ -248,6 +248,8 @@ export default function ClientPage({ id }: { id: string }) {
   const { loginMember } = use(LoginMemberContext);
   const { toast } = useToast();
 
+  const [isSaleStatus, setIsSaleStatus] = useState(true);
+
   // postId 파싱
   const postId = parseInt(id, 10);
 
@@ -258,7 +260,7 @@ export default function ClientPage({ id }: { id: string }) {
         const data = await getPostDetail(postId);
         setPost(data);
 
-        console.log(data);
+        if (!data.saleStatus) setIsSaleStatus(() => false);
 
         // 게시글 작성자가 아닌 경우에만 팔로우 상태 확인
         if (data.authorId !== loginMember.id) {
@@ -659,7 +661,7 @@ export default function ClientPage({ id }: { id: string }) {
           <div className="md:w-1/2 flex flex-col">
             <h1 className="text-2xl font-bold text-gray-900 mb-2">
               {post.title}
-              {isAuction && (
+              {isAuction && isSaleStatus && (
                 <span className="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-800">
                   <Gavel className="w-3 h-3 mr-1" />
                   경매중
@@ -671,11 +673,11 @@ export default function ClientPage({ id }: { id: string }) {
               {isAuction ? "현재 입찰가" : ""} {post.price.toLocaleString()}원
             </p>
 
-            {isAuction && post.authorUsername && (
+            {/* {isAuction && post.authorUsername && (
               <p className="text-sm text-gray-600 mb-4">
                 현재 입찰자: {post.authorUsername}
               </p>
-            )}
+            )} */}
 
             {isAuction && (
               <div className="flex flex-col gap-1 p-3 bg-amber-50 rounded-md mb-4 text-sm">
@@ -753,15 +755,17 @@ export default function ClientPage({ id }: { id: string }) {
                 <div className="flex items-center gap-3">
                   <FallbackImage
                     src={"/user.svg"}
-                    alt={loginMember.nickname}
+                    alt={post.authorNickname}
                     width={40}
                     height={40}
                     className="w-10 h-10 rounded-full border border-gray-200 object-cover"
                     fallbackSrc="/user.svg"
                   />
                   <div>
-                    <p className="font-medium">{loginMember.nickname}</p>
-                    <p className="text-sm text-gray-500">{post.place}</p>
+                    <p className="font-medium">{post.authorNickname}</p>
+                    <p className="text-sm text-gray-500">
+                      {post.authorUsername}
+                    </p>
                   </div>
                 </div>
 

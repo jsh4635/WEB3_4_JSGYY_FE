@@ -24,15 +24,21 @@ export interface FilterOptions {
 }
 
 const CATEGORIES = [
-  { id: "all", label: "전체" },
-  { id: "electronics", label: "전자기기" },
-  { id: "furniture", label: "가구/인테리어" },
-  { id: "clothes", label: "의류" },
-  { id: "beauty", label: "뷰티/미용" },
-  { id: "books", label: "도서" },
-  { id: "sports", label: "스포츠/레저" },
-  { id: "hobby", label: "취미/게임" },
-  { id: "others", label: "기타" },
+  { id: null, label: "전체" },
+  { id: "남성의류", label: "남성의류" },
+  { id: "여성의류", label: "여성의류" },
+  { id: "디지털/가전", label: "디지털/가전" },
+  { id: "가구/인테리어", label: "가구/인테리어" },
+  { id: "패션/잡화", label: "패션/잡화" },
+  { id: "뷰티/미용", label: "뷰티/미용" },
+  { id: "도서/음반", label: "도서/음반" },
+  { id: "스포츠/레저", label: "스포츠/레저" },
+  { id: "취미/게임", label: "취미/게임" },
+  { id: "유아동/출산", label: "유아동/출산" },
+  { id: "반려동물용품", label: "반려동물용품" },
+  { id: "식품", label: "식품" },
+  { id: "식물", label: "식물" },
+  { id: "기타", label: "기타" },
 ];
 
 export default function Filter({ onFilterChange, className }: FilterProps) {
@@ -69,17 +75,17 @@ export default function Filter({ onFilterChange, className }: FilterProps) {
 
   const handleCategoryChange = (categoryId: string) => {
     setSelectedCategories((prev) => {
-      if (categoryId === "all") {
-        return prev.includes("all") ? [] : ["all"];
+      if (categoryId === null) {
+        return prev.includes(null) ? [] : [null];
       } else {
         // "전체" 카테고리가 이미 선택되어 있으면 제거
-        const withoutAll = prev.filter((id) => id !== "all");
+        const withoutAll = prev.filter((id) => id !== null);
 
         // 선택한 카테고리가 이미 선택되어 있는지 확인
         if (withoutAll.includes(categoryId)) {
           return withoutAll.filter((id) => id !== categoryId);
         } else {
-          return [...withoutAll, categoryId];
+          return [categoryId];
         }
       }
     });
