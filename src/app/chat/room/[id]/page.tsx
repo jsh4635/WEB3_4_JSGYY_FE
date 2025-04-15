@@ -152,21 +152,30 @@ export default function ChatRoomPage() {
           }
 
           // 새로운 메시지를 화면에 추가
-          const newMessage: ChatMessage = {
-            id: String(socketMessage.id || Date.now()),
-            sender:
-              Number(socketMessage.member_id) === myMemberId
-                ? "나"
-                : chatRoom?.nickname || "익명",
-            message: socketMessage.content || "",
-            timestamp: formatTimestamp(
-              socketMessage.timestamp || new Date().toISOString(),
-            ),
-            isMine: Number(socketMessage.member_id) === myMemberId,
-          };
-
-          setMessages((prev) => [...prev, newMessage]);
-        });
+          const isMyMessage = Number(socketMessage.memberId) === myMemberId;
+          console.log("MyMessage", isMyMessage);
+            console.log("socketMessageId", socketMessage.memberId);
+            console.log("myMemberId", myMemberId);
+          if (!isMyMessage) {
+            // 새로운 메시지를 화면에 추가
+            const newMessage: ChatMessage = {
+              id: String(socketMessage.id || Date.now()),
+              sender:
+                Number(socketMessage.member_id) === myMemberId
+                  ? "나"
+                  : chatRoom?.nickname || "익명",
+              message: socketMessage.content || "",
+              timestamp: formatTimestamp(
+                socketMessage.timestamp || new Date().toISOString(),
+              ),
+              isMine: Number(socketMessage.member_id) === myMemberId,
+            };
+          
+            setMessages((prev) => [...prev, newMessage]);
+            
+          }
+          
+      });
         console.log(`채팅방: 채팅방 ${roomId} 구독 성공`);
       } catch (error) {
         console.error("채팅방: 채팅방 구독 실패:", error);
