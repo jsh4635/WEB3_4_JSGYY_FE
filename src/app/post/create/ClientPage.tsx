@@ -1,6 +1,7 @@
 "use client";
 
 import { api } from "@/api";
+import { APIApiUpdateImagesRequest } from "@/api/generated";
 import { PostRequest } from "@/api/generated/models/post-request";
 import { uploadImages } from "@/api/posts";
 import { CATEGORIES } from "@/constants/categories";
@@ -107,9 +108,9 @@ export default function ClientPage() {
 
       const imageResponse = await api.updateImages(
         {
-          postId: response.data.postId,
+          postId: (response.data as any).postId,
           images: formData,
-        },
+        } as unknown as APIApiUpdateImagesRequest,
         {
           headers: {
             "Content-Type": "multipart/form-data",

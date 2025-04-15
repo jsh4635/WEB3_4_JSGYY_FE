@@ -28,9 +28,9 @@ export default function PaymentModal({
     // 만약 스크립트가 존재하지 않으면
     if (!script) {
       // 새로운 스크립트 요소를 생성
-      script = document.createElement("script");
-      script.src = "https://cdn.iamport.kr/v1/iamport.js";
-      script.async = true;
+      script = document.createElement("script") as any;
+      script.setAttribute("src", "https://cdn.iamport.kr/v1/iamport.js");
+      script.setAttribute("async", "true");
       document.body.appendChild(script); // 스크립트를 문서의 body에 추가
     }
 
@@ -48,7 +48,7 @@ export default function PaymentModal({
     try {
       setIsProcessing(true);
 
-      const { IMP } = window;
+      const { IMP } = window as any;
 
       IMP.init("imp45386610");
       var today = new Date();
