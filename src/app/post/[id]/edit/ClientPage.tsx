@@ -149,8 +149,13 @@ export default function ClientPage() {
         },
       );
 
+      console.log(deleteImageIds);
+
       const deleteImageResponse = await fetch(
-        process.env.NEXT_PUBLIC_API_URL + postId + "/images/delete",
+        process.env.NEXT_PUBLIC_API_URL +
+          "/api/posts/" +
+          postId +
+          "/images/delete",
         {
           method: "POST",
           headers: {
@@ -158,9 +163,7 @@ export default function ClientPage() {
             access: token,
           },
           credentials: "include",
-          body: {
-            deletedImageIds: deleteImageIds,
-          },
+          body: JSON.stringify(deleteImageIds),
         },
       );
 
