@@ -33,6 +33,18 @@ export interface    DTO {
      */
     'title': string;
     /**
+     *  게시글 내용
+     * @type {string}
+     * @memberof    DTO
+     */
+    'content': string;
+    /**
+     *  게시글 카테고리
+     * @type {string}
+     * @memberof    DTO
+     */
+    'category': string;
+    /**
      *  장소
      * @type {string}
      * @memberof    DTO

@@ -18,6 +18,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { FallbackImage } from "@/components/ui/image";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -46,6 +47,8 @@ export default function ClientPage() {
     auctionStartedAt?: string;
     auctionClosedAt?: string;
   }>({ isAuction: false });
+
+  const [deleteImageIds, setDeleteImageIds] = useState([]);
 
   const form = useForm<CreatePostFormData>({
     resolver: zodResolver(createPostSchema),
@@ -76,7 +79,7 @@ export default function ClientPage() {
           content: response.data.content || "",
           place: response.data.place || "",
         });
-        console.log(response.data.category);
+        console.log(response);
 
         // 경매 정보 설정
         setAuctionInfo({
@@ -85,14 +88,14 @@ export default function ClientPage() {
           auctionClosedAt: response.data.auctionClosedAt,
         });
 
-        // // 이미지 데이터가 있으면 설정
-        // if (response.data.imageUrls && response.data.imageUrls.length > 0) {
-        //   const postImages = response.data.imageUrls.map((url, index) => ({
-        //     url,
-        //     id: index,
-        //   }));
-        //   setImages(postImages);
-        // }
+        // 이미지 데이터가 있으면 설정
+        if (response.data.images && response.data.images.length > 0) {
+          const postImages = response.data.images.map((url, index) => ({
+            url,
+            id: index,
+          }));
+          setImages(postImages);
+        }
       }
     };
     fetchPost();
@@ -114,6 +117,27 @@ export default function ClientPage() {
         },
       });
 
+      // FormData 객체 생성
+      const formData = new FormData();
+
+      // 이미지 파일들을 FormData에 추가
+      images.forEach((img) => {
+        formData.append(`images`, img.file);
+      });
+
+      const imageResponse = await api.updateImages(
+        {
+          postId: parseInt(postId),
+          images: formData,
+          deleteImageIds,
+        },
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        },
+      );
+
       // 수정 성공 후 상세 페이지로 이동
       router.push(`/post/${postId}`);
     } catch (error) {
@@ -134,11 +158,12 @@ export default function ClientPage() {
     e.target.value = ""; // 입력 초기화
   };
 
-  const removeImage = (indexToRemove: number) => {
+  const removeImage = (indexToRemove: number, deleteImageId: number) => {
     setImages((prev) => {
       const newImages = prev.filter((_, index) => index !== indexToRemove);
       return newImages;
     });
+    setDeleteImageIds(() => [...deleteImageIds, deleteImageId]);
   };
 
   if (isLoading) {
@@ -183,14 +208,16 @@ export default function ClientPage() {
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mt-4">
                 {images.map((image, index) => (
                   <div key={index} className="relative group">
-                    <img
-                      src={image.url}
+                    <FallbackImage
+                      src={image.url.url}
                       alt={`상품 이미지 ${index + 1}`}
+                      width={300}
+                      height={300}
                       className="w-full aspect-square object-cover rounded-lg"
                     />
                     <button
                       type="button"
-                      onClick={() => removeImage(index)}
+                      onClick={() => removeImage(index, image.url.id)}
                       className="absolute top-2 right-2 p-1 rounded-full bg-black/50 text-white 
                         opacity-0 group-hover:opacity-100 transition-opacity"
                     >
@@ -221,7 +248,6 @@ export default function ClientPage() {
           <FormField
             control={form.control}
             name="category"
-            disabled={true}
             render={({ field }) => (
               <FormItem>
                 <FormLabel>카테고리</FormLabel>
@@ -286,7 +312,6 @@ export default function ClientPage() {
           <FormField
             control={form.control}
             name="content"
-            disabled
             render={({ field }) => (
               <FormItem>
                 <FormLabel>상품 설명</FormLabel>

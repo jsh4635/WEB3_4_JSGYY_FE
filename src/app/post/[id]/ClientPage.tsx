@@ -5,6 +5,7 @@ import { PostDetail } from "@/types/post";
 import axios from "axios";
 import { use, useEffect, useState } from "react";
 
+import Image, { ImageProps } from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
@@ -554,7 +555,6 @@ export default function ClientPage({ id }: { id: string }) {
     );
   };
 
-  console.log(isAuction, isAuthor);
   return (
     <>
       <main className="container mx-auto px-4 py-8 max-w-5xl">
@@ -564,7 +564,7 @@ export default function ClientPage({ id }: { id: string }) {
             <div className="relative rounded-lg overflow-hidden bg-gray-100 aspect-square">
               <>
                 <FallbackImage
-                  src={post.images[currentImageIndex]}
+                  src={post.images[currentImageIndex].url}
                   alt={post.title}
                   width={600}
                   height={600}
@@ -573,7 +573,7 @@ export default function ClientPage({ id }: { id: string }) {
                 {post.images.length > 1 && (
                   <>
                     <button
-                      onClick={handlePrevImage}
+                      onClick={() => handlePrevImage()}
                       className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/30 text-white p-2 rounded-full"
                     >
                       <svg
@@ -592,7 +592,7 @@ export default function ClientPage({ id }: { id: string }) {
                       </svg>
                     </button>
                     <button
-                      onClick={handleNextImage}
+                      onClick={() => handleNextImage()}
                       className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/30 text-white p-2 rounded-full"
                     >
                       <svg
@@ -635,7 +635,7 @@ export default function ClientPage({ id }: { id: string }) {
                     className={`block w-16 h-16 rounded-md overflow-hidden flex-shrink-0 border-2 ${index === currentImageIndex ? "border-primary" : "border-transparent"}`}
                   >
                     <FallbackImage
-                      src={image}
+                      src={image.url}
                       alt={`썸네일 ${index + 1}`}
                       width={80}
                       height={80}

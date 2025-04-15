@@ -1710,7 +1710,7 @@ export const APIApiAxiosParamCreator = function (configuration?: Configuration) 
                 })
             }
 
-                if (deleteImageIds) {
+            if (deleteImageIds) {
                 localVarFormParams.append('deleteImageIds', deleteImageIds.join(COLLECTION_FORMATS.csv));
             }
 

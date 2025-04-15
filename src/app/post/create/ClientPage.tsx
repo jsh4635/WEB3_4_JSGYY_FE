@@ -105,10 +105,6 @@ export default function ClientPage() {
         formData.append(`images`, img.file);
       });
 
-      console.log(response);
-
-      // const imageResponse1 = uploadImages(response.data.postId, formData);
-
       const imageResponse = await api.updateImages(
         {
           postId: response.data.postId,
@@ -120,8 +116,6 @@ export default function ClientPage() {
           },
         },
       );
-
-      console.log(imageResponse);
 
       // API 응답에서 메시지 추출
       let responseMessage = "게시글이 성공적으로 등록되었습니다.";
@@ -141,34 +135,32 @@ export default function ClientPage() {
       const postId = extractPostId(responseMessage);
       // const postId = 1;
 
-      if (!postId) {
-        setErrorMessage(
-          "게시글 ID를 추출할 수 없습니다. 이미지 업로드를 건너뜁니다.",
-        );
-        return;
-      } else if (images.length > 0) {
-        try {
-          // 이미지 파일을 File 형태로 전달
-          const response = await api.updateImages({
-            postId,
-            images: {
-              images: images.map((img) => img.file),
-            },
-          });
+      // if (!postId) {
+      //   setErrorMessage(
+      //     "게시글 ID를 추출할 수 없습니다. 이미지 업로드를 건너뜁니다.",
+      //   );
+      //   return;
+      // } else if (images.length > 0) {
+      //   try {
+      //     // 이미지 파일을 File 형태로 전달
+      //     const response = await api.updateImages({
+      //       postId,
+      //       images: images.map((img) => img.file),
+      //     });
 
-          if (!response) {
-            throw new Error("이미지 업로드 응답이 없습니다.");
-          }
+      //     if (!response) {
+      //       throw new Error("이미지 업로드 응답이 없습니다.");
+      //     }
 
-          console.log("이미지 업로드 성공");
-        } catch (uploadError) {
-          console.error("이미지 업로드 중 오류:", uploadError);
-          setErrorMessage(
-            "이미지 업로드 중 오류가 발생했습니다. 다시 시도해주세요.",
-          );
-          return;
-        }
-      }
+      //     console.log("이미지 업로드 성공");
+      //   } catch (uploadError) {
+      //     console.error("이미지 업로드 중 오류:", uploadError);
+      //     setErrorMessage(
+      //       "이미지 업로드 중 오류가 발생했습니다. 다시 시도해주세요.",
+      //     );
+      //     return;
+      //   }
+      // }
 
       // 성공 메시지 표시
       // alert(responseMessage);
