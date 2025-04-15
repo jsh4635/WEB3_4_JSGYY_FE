@@ -50,5 +50,11 @@ export interface ExchangeDTO {
      * @memberof ExchangeDTO
      */
     'otherName': string;
+    /**
+     * 거래 후 잔액
+     * @type {number}
+     * @memberof ExchangeDTO
+     */
+    'totalPrice': number;
 }
 

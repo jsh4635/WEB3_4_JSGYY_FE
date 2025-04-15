@@ -44,7 +44,7 @@ export const getMyPosts = async (
     });
 
     // API 응답 구조에 맞게 데이터 가공
-    const responseData = response?.data as
+    const responseData = response?.data as unknown as
       | {
           content: Array<{
             id: number;

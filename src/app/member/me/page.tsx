@@ -311,7 +311,7 @@ export default function MyPage() {
                   const api = await import("@/api").then(
                     (module) => module.api,
                   );
-                  await api.withdrawal({ oneData: { data: "" } });
+                  await api.withdrawal();
                   router.push("/");
                 } catch (err) {
                   console.error("회원 탈퇴 중 오류 발생:", err);

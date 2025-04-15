@@ -1,6 +1,7 @@
 "use client";
 
 import { api } from "@/api";
+import { APIApiUpdateImagesRequest } from "@/api/generated";
 import { PostRequest } from "@/api/generated/models/post-request";
 import { uploadImages } from "@/api/posts";
 import { CATEGORIES } from "@/constants/categories";
@@ -107,9 +108,9 @@ export default function ClientPage() {
 
       const imageResponse = await api.updateImages(
         {
-          postId: response.data.postId,
+          postId: (response.data as any).postId,
           images: formData,
-        },
+        } as unknown as APIApiUpdateImagesRequest,
         {
           headers: {
             "Content-Type": "multipart/form-data",
@@ -454,24 +455,10 @@ export default function ClientPage() {
                       <Input
                         type="datetime-local"
                         onChange={(e) => {
-                          // datetime-local 값을 ISO 문자열로 변환 (한국 시간 기준)
-                          const inputDate = e.target.value;
-                          if (inputDate) {
-                            // 이미 사용자 로컬 시간대로 입력되므로 그대로 ISO 형식으로 변환
-                            const formattedDate = new Date(
-                              inputDate,
-                            ).toISOString();
-                            field.onChange(formattedDate);
-                          } else {
-                            field.onChange("");
-                          }
+                          const inputDate = e.target.value; // 형식: "2025-04-15T10:00"
+                          field.onChange(inputDate);
                         }}
-                        // ISO 문자열을 datetime-local 형식으로 변환 (로컬 시간대 표시)
-                        value={
-                          field.value
-                            ? new Date(field.value).toISOString().slice(0, 16)
-                            : ""
-                        }
+                        value={field.value ?? ""}
                         disabled={isSubmitting}
                       />
                     </FormControl>
@@ -490,24 +477,10 @@ export default function ClientPage() {
                       <Input
                         type="datetime-local"
                         onChange={(e) => {
-                          // datetime-local 값을 ISO 문자열로 변환 (한국 시간 기준)
-                          const inputDate = e.target.value;
-                          if (inputDate) {
-                            // 이미 사용자 로컬 시간대로 입력되므로 그대로 ISO 형식으로 변환
-                            const formattedDate = new Date(
-                              inputDate,
-                            ).toISOString();
-                            field.onChange(formattedDate);
-                          } else {
-                            field.onChange("");
-                          }
+                          const inputDate = e.target.value; // 형식: "2025-04-15T10:00"
+                          field.onChange(inputDate);
                         }}
-                        // ISO 문자열을 datetime-local 형식으로 변환 (로컬 시간대 표시)
-                        value={
-                          field.value
-                            ? new Date(field.value).toISOString().slice(0, 16)
-                            : ""
-                        }
+                        value={field.value ?? ""}
                         disabled={isSubmitting}
                       />
                     </FormControl>

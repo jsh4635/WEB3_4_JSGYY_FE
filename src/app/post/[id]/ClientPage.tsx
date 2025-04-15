@@ -258,6 +258,8 @@ export default function ClientPage({ id }: { id: string }) {
         const data = await getPostDetail(postId);
         setPost(data);
 
+        console.log(data);
+
         // 게시글 작성자가 아닌 경우에만 팔로우 상태 확인
         if (data.authorId !== loginMember.id) {
           // authorId로 팔로우 상태 확인
@@ -414,8 +416,13 @@ export default function ClientPage({ id }: { id: string }) {
     try {
       setBidLoading(true);
 
+      const bidDTO = {
+        price: bidAmount,
+      };
+
       // 실제 API 호출 대신 모의 응답 처리 (가짜 데이터 업데이트)
       // 실제 구현 시 API 호출 필요
+      const bidResponse = api.bidPrice({ postId, bidDTO });
 
       // UI 상태 업데이트
       setPost((prev) => {
@@ -451,6 +458,7 @@ export default function ClientPage({ id }: { id: string }) {
   // 입찰 모달 열기 핸들러
   const handleOpenBidDialog = () => {
     if (!post) return;
+
     setBidAmount(post.price + 1000); // 기본값을 현재 가격 + 1000원으로 설정
     setBidDialogOpen(true);
   };
@@ -564,7 +572,7 @@ export default function ClientPage({ id }: { id: string }) {
             <div className="relative rounded-lg overflow-hidden bg-gray-100 aspect-square">
               <>
                 <FallbackImage
-                  src={post.images[currentImageIndex].url}
+                  src={(post.images[currentImageIndex] as any).url}
                   alt={post.title}
                   width={600}
                   height={600}
@@ -635,7 +643,7 @@ export default function ClientPage({ id }: { id: string }) {
                     className={`block w-16 h-16 rounded-md overflow-hidden flex-shrink-0 border-2 ${index === currentImageIndex ? "border-primary" : "border-transparent"}`}
                   >
                     <FallbackImage
-                      src={image.url}
+                      src={(image as any).url}
                       alt={`썸네일 ${index + 1}`}
                       width={80}
                       height={80}

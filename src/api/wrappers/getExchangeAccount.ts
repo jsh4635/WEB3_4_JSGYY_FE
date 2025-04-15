@@ -1,7 +1,10 @@
 import { api } from "@/api";
 import axios from "axios";
 
+import { APIApiGetExchangeAccountRequest } from "../generated";
+
 export interface ExchangeItem {
+  [x: string]: any;
   exchangeType: number;
   payDate: string;
   price: number;
@@ -26,7 +29,10 @@ export const getExchangeAccount = async (
   type: "all" | "sender" | "receiver" = "all",
 ): Promise<ExchangeResponse> => {
   try {
-    const response = await api.getExchangeAccount({ id: 0, type });
+    const response = await api.getExchangeAccount({
+      id: 0,
+      type,
+    } as unknown as APIApiGetExchangeAccountRequest);
 
     // API 응답 구조에 맞게 데이터 가공
     if (response?.data) {

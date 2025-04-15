@@ -693,8 +693,7 @@ export const APIApiAxiosParamCreator = function (configuration?: Configuration) 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getAccount: async (UNKNOWN_PARAMETER_NAME: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'UNKNOWN_PARAMETER_NAME' is not null or undefined
+        getAccount: async (UNKNOWN_PARAMETER_NAME: any, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             const localVarPath = `/api/account`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -846,9 +845,7 @@ export const APIApiAxiosParamCreator = function (configuration?: Configuration) 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getExchangeAccount: async (UNKNOWN_PARAMETER_NAME: string, type: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'UNKNOWN_PARAMETER_NAME' is not null or undefined
-            
+        getExchangeAccount: async (UNKNOWN_PARAMETER_NAME: any, type: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'type' is not null or undefined
             assertParamExists('getExchangeAccount', 'type', type)
             const localVarPath = `/api/account/exchange`;
@@ -1710,7 +1707,7 @@ export const APIApiAxiosParamCreator = function (configuration?: Configuration) 
                 })
             }
 
-            if (deleteImageIds) {
+                if (deleteImageIds) {
                 localVarFormParams.append('deleteImageIds', deleteImageIds.join(COLLECTION_FORMATS.csv));
             }
 
@@ -2025,7 +2022,7 @@ export const APIApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async getAccount(UNKNOWN_PARAMETER_NAME: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+        async getAccount(UNKNOWN_PARAMETER_NAME: any, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.getAccount(UNKNOWN_PARAMETER_NAME, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['APIApi.getAccount']?.[localVarOperationServerIndex]?.url;
@@ -2077,7 +2074,7 @@ export const APIApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async getExchangeAccount(UNKNOWN_PARAMETER_NAME: string, type: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ExchangeDTO>> {
+        async getExchangeAccount(UNKNOWN_PARAMETER_NAME: any, type: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ExchangeDTO>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.getExchangeAccount(UNKNOWN_PARAMETER_NAME, type, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['APIApi.getExchangeAccount']?.[localVarOperationServerIndex]?.url;
@@ -3477,7 +3474,7 @@ export interface APIApiGetAccountRequest {
      * @type {}
      * @memberof APIApiGetAccount
      */
-    readonly UNKNOWN_PARAMETER_NAME?: string
+    readonly UNKNOWN_PARAMETER_NAME: any
 }
 
 /**
@@ -3512,7 +3509,7 @@ export interface APIApiGetExchangeAccountRequest {
      * @type {}
      * @memberof APIApiGetExchangeAccount
      */
-    readonly UNKNOWN_PARAMETER_NAME: string
+    readonly UNKNOWN_PARAMETER_NAME: any
 
     /**
      * 거래 타입(sender : 출금, receiver : 입금, all : 전체는 생략가능)
