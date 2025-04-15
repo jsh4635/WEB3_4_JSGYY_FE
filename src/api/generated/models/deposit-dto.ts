@@ -26,7 +26,7 @@ export interface DepositDTO {
      * @memberof DepositDTO
      */
     'price'?: number;
-     /**
+    /**
      * UID
      * @type {string}
      * @memberof DepositDTO

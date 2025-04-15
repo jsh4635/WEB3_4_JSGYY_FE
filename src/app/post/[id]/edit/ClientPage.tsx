@@ -41,12 +41,16 @@ export default function ClientPage() {
   const [images, setImages] = useState<
     { url: string; file?: File; id?: number }[]
   >([]);
+  const [newImages, setNewImages] = useState<
+    { url: string; file?: File; id?: number }[]
+  >([]);
   const [isLoading, setIsLoading] = useState(true);
   const [auctionInfo, setAuctionInfo] = useState<{
     isAuction: boolean;
     auctionStartedAt?: string;
     auctionClosedAt?: string;
   }>({ isAuction: false });
+  const [token, setToken] = useState("");
 
   const [deleteImageIds, setDeleteImageIds] = useState([]);
 
@@ -60,6 +64,13 @@ export default function ClientPage() {
       place: "",
     },
   });
+
+  const removeNewImage = (indexToRemove: number) => {
+    setImages((prev) => {
+      const newImages = prev.filter((_, index) => index !== indexToRemove);
+      return newImages;
+    });
+  };
 
   useEffect(() => {
     const fetchPost = async () => {
@@ -79,7 +90,8 @@ export default function ClientPage() {
           content: response.data.content || "",
           place: response.data.place || "",
         });
-        console.log(response);
+
+        setToken(localStorage.getItem("accessToken"));
 
         // 경매 정보 설정
         setAuctionInfo({
@@ -121,7 +133,7 @@ export default function ClientPage() {
       const formData = new FormData();
 
       // 이미지 파일들을 FormData에 추가
-      images.forEach((img) => {
+      newImages.forEach((img) => {
         formData.append(`images`, img.file);
       });
 
@@ -129,11 +141,25 @@ export default function ClientPage() {
         {
           postId: parseInt(postId),
           images: formData,
-          deleteImageIds,
         },
         {
           headers: {
             "Content-Type": "multipart/form-data",
+          },
+        },
+      );
+
+      const deleteImageResponse = await fetch(
+        process.env.NEXT_PUBLIC_API_URL + postId + "/images/delete",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            access: token,
+          },
+          credentials: "include",
+          body: {
+            deletedImageIds: deleteImageIds,
           },
         },
       );
@@ -154,7 +180,7 @@ export default function ClientPage() {
       file,
     }));
 
-    setImages((prev) => [...prev, ...newImages]);
+    setNewImages((prev) => [...prev, ...newImages]);
     e.target.value = ""; // 입력 초기화
   };
 
@@ -188,7 +214,7 @@ export default function ClientPage() {
                 variant="outline"
                 className="w-32 h-32 flex flex-col items-center justify-center gap-2 border-dashed"
                 onClick={() => document.getElementById("images")?.click()}
-                disabled={images.length >= 10}
+                disabled={images.length + newImages.length >= 10}
               >
                 <ImagePlus className="w-8 h-8" />
                 <span className="text-sm">이미지 추가</span>
@@ -218,6 +244,27 @@ export default function ClientPage() {
                     <button
                       type="button"
                       onClick={() => removeImage(index, image.url.id)}
+                      className="absolute top-2 right-2 p-1 rounded-full bg-black/50 text-white 
+                        opacity-0 group-hover:opacity-100 transition-opacity"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+            {newImages.length > 0 && (
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mt-4">
+                {newImages.map((image, index) => (
+                  <div key={index} className="relative group">
+                    <img
+                      src={image.url}
+                      alt={`상품 이미지 ${index + 1}`}
+                      className="w-full aspect-square object-cover rounded-lg"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => removeNewImage(index)}
                       className="absolute top-2 right-2 p-1 rounded-full bg-black/50 text-white 
                         opacity-0 group-hover:opacity-100 transition-opacity"
                     >

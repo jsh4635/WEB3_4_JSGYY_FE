@@ -25,7 +25,7 @@ export interface MessageSearchDTO {
      * @type {string}
      * @memberof MessageSearchDTO
      */
-    'content': string;
+    'message': string;
     /**
      * 페이지 번호 (0부터 시작)
      * @type {number}

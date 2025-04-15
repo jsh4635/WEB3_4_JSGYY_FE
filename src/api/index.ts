@@ -14,6 +14,7 @@ const axiosInstance = axios.create({
 export const createApiConfig = () => {
   return new Configuration({
     basePath: process.env.NEXT_PUBLIC_API_URL,
+    // basePath: "https://api.app1.springservice.shop",
     baseOptions: {
       // withCredentials 설정을 base options에도 추가
       withCredentials: true,
