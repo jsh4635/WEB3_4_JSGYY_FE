@@ -110,8 +110,8 @@ class ChatSocketService {
       // 이전 연결 해제
       this.cleanupConnection();
 
-      // const API_URL = process.env.NEXT_PUBLIC_API_URL;
-      const API_URL = "http://localhost:8080";
+      const API_URL = process.env.NEXT_PUBLIC_API_URL;
+      //const API_URL = ;
       console.log("소켓 연결 주소:", `${API_URL}/ws`);
 
       this.client = new Client({
